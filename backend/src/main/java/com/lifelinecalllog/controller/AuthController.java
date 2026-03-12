@@ -2,8 +2,6 @@ package com.lifelinecalllog.controller;
 
 import com.lifelinecalllog.dto.AuthResponse;
 import com.lifelinecalllog.dto.LoginRequest;
-import com.lifelinecalllog.dto.RefreshTokenRequest;
-import com.lifelinecalllog.dto.RegisterRequest;
 import com.lifelinecalllog.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,13 +18,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
-                                                  HttpServletResponse response) {
-        AuthResponse authResponse = authService.register(request, response);
-        return ResponseEntity.ok(authResponse);
-    }
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
                                                HttpServletResponse response) {
@@ -37,17 +28,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(HttpServletRequest request,
                                                  HttpServletResponse response) {
-        String refreshToken = null;
-
-        // Get refresh token from cookie
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    refreshToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String refreshToken = extractCookieValue(request, "refreshToken");
 
         if (refreshToken == null) {
             return ResponseEntity.badRequest().build();
@@ -59,19 +40,16 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = null;
-
-        // Get refresh token from cookie
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    refreshToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
+        String refreshToken = extractCookieValue(request, "refreshToken");
         authService.logout(refreshToken, response);
         return ResponseEntity.ok().build();
+    }
+
+    private String extractCookieValue(HttpServletRequest request, String name) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if (name.equals(cookie.getName())) return cookie.getValue();
+        }
+        return null;
     }
 }

@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["jdk21", "nodejs_22", "nodePackages.pnpm"]
+
+[phases.build]
+cmds = ["cd backend && mvn package -DskipTests"]
+
+[start]
+cmd = "java -Dspring.profiles.active=prod -jar backend/target/lifeline-call-log-backend-0.0.1-SNAPSHOT.jar"

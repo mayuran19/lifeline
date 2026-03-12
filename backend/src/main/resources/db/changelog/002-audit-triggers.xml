@@ -8,7 +8,7 @@
     <changeSet author="lifeline-call-log" id="002-audit-triggers">
         <sqlFile path="sql/002-audit-triggers.sql"
                  relativeToChangelogFile="true"
-                 splitStatements="true"
+                 splitStatements="false"
                  stripComments="false"/>
     </changeSet>
 

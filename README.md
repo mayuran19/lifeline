@@ -55,7 +55,7 @@ lifeline-call-log/
 
 1. Create PostgreSQL database:
 ```bash
-createdb lifeline_call_log
+createdb lifeline_app
 
 -- Create user
 CREATE USER lifeline_app WITH PASSWORD 'password';
@@ -67,6 +67,7 @@ GRANT ALL PRIVILEGES ON DATABASE lifeline_app TO lifeline_app;
 \c lifeline_app
 
 -- Grant usage on schema
+GRANT CREATE ON SCHEMA public TO lifeline_app;
 GRANT USAGE ON SCHEMA public TO lifeline_app;
 
 -- Grant all on existing tables

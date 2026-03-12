@@ -5,10 +5,16 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!-- Add your schema files here -->
-    <!-- <include file="001-initial-schema.xml" relativeToChangelogFile="true"/> -->
-
+    <include file="001-initial-schema.xml" relativeToChangelogFile="true"/>
     <include file="002-audit-triggers.xml" relativeToChangelogFile="true"/>
     <include file="003-history-tables.xml" relativeToChangelogFile="true"/>
+    <include file="004-domain-schema.xml" relativeToChangelogFile="true"/>
+    <include file="005-audit-triggers.xml" relativeToChangelogFile="true"/>
+    <include file="006-history-tables.xml" relativeToChangelogFile="true"/>
+    <include file="007-auth-refactor.xml" relativeToChangelogFile="true"/>
+    <include file="008-fix-refresh-token-history.xml" relativeToChangelogFile="true"/>
+    <include file="009-audit-columns-uuid.xml" relativeToChangelogFile="true"/>
+    <include file="010-request-start-end-time.xml" relativeToChangelogFile="true"/>
+    <include file="011-fix-request-history-columns.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

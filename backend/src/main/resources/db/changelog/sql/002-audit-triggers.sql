@@ -38,14 +38,35 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Add triggers for your tables here
--- Example:
--- CREATE TRIGGER your_table_audit_insert
---     BEFORE INSERT ON your_table
---     FOR EACH ROW
---     EXECUTE FUNCTION update_audit_columns_insert();
---
--- CREATE TRIGGER your_table_audit_update
---     BEFORE UPDATE ON your_table
---     FOR EACH ROW
---     EXECUTE FUNCTION update_audit_columns_update();
+-- Create triggers for app_user table
+CREATE TRIGGER app_user_audit_insert
+    BEFORE INSERT ON app_user
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_insert();
+
+CREATE TRIGGER app_user_audit_update
+    BEFORE UPDATE ON app_user
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_update();
+
+-- Create triggers for platform_admin table
+CREATE TRIGGER platform_admin_audit_insert
+    BEFORE INSERT ON platform_admin
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_insert();
+
+CREATE TRIGGER platform_admin_audit_update
+    BEFORE UPDATE ON platform_admin
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_update();
+
+-- Create triggers for refresh_token table
+CREATE TRIGGER refresh_token_audit_insert
+    BEFORE INSERT ON refresh_token
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_insert();
+
+CREATE TRIGGER refresh_token_audit_update
+    BEFORE UPDATE ON refresh_token
+    FOR EACH ROW
+    EXECUTE FUNCTION update_audit_columns_update();

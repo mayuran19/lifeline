@@ -2,26 +2,33 @@ package com.lifelinecalllog.service;
 
 import com.lifelinecalllog.dto.AuthResponse;
 import com.lifelinecalllog.dto.LoginRequest;
-import com.lifelinecalllog.dto.RegisterRequest;
+import com.lifelinecalllog.jooq.tables.records.AppUserRecord;
 import com.lifelinecalllog.security.JwtUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+
+import static com.lifelinecalllog.jooq.Tables.APP_USER;
+import static com.lifelinecalllog.jooq.Tables.REFRESH_TOKEN;
 
 @Service
 public class AuthService {
+
+    @Autowired
+    private DSLContext dsl;
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Value("${cookie.domain}")
-    private String cookieDomain;
 
     @Value("${cookie.secure}")
     private boolean cookieSecure;
@@ -35,87 +42,73 @@ public class AuthService {
     @Value("${jwt.refresh-token.expiration}")
     private Long refreshTokenExpiration;
 
-    /**
-     * Register a new user
-     * TODO: Implement with JOOQ after code generation
-     */
-    public AuthResponse register(RegisterRequest request, HttpServletResponse response) {
-        // TODO: Implement user registration with JOOQ
-        // 1. Check if username or email already exists
-        // 2. Hash password
-        // 3. Insert user into database
-        // 4. Generate tokens
-        // 5. Save refresh token to database
-        // 6. Set cookies
-        // 7. Return AuthResponse
-
-        String hashedPassword = passwordEncoder.encode(request.password());
-
-        // Placeholder implementation
-        String accessToken = jwtUtil.generateAccessToken(request.username(), "USER");
-        String refreshToken = jwtUtil.generateRefreshToken(request.username(), "USER");
-
-        setAuthCookies(response, accessToken, refreshToken);
-
-        return new AuthResponse(accessToken, refreshToken, request.username(), request.email(), "USER");
-    }
-
-    /**
-     * Login user
-     * TODO: Implement with JOOQ after code generation
-     */
+    @Transactional
     public AuthResponse login(LoginRequest request, HttpServletResponse response) {
-        // TODO: Implement user login with JOOQ
-        // 1. Find user by username and userType
-        // 2. Verify password
-        // 3. Generate tokens
-        // 4. Save refresh token to database
-        // 5. Set cookies
-        // 6. Return AuthResponse
+        AppUserRecord user = dsl.selectFrom(APP_USER)
+                .where(APP_USER.USERNAME.eq(request.username()))
+                .fetchOne();
 
-        String userType = request.userType() != null ? request.userType() : "USER";
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
 
-        // Placeholder implementation
-        String accessToken = jwtUtil.generateAccessToken(request.username(), userType);
-        String refreshToken = jwtUtil.generateRefreshToken(request.username(), userType);
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        String accessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), user.getRole());
+
+        // Use explicit column INSERT to avoid stale jOOQ generated code issues after schema migration
+        dsl.insertInto(REFRESH_TOKEN,
+                        REFRESH_TOKEN.TOKEN, REFRESH_TOKEN.USER_ID, REFRESH_TOKEN.EXPIRY_DATE, REFRESH_TOKEN.REVOKED)
+                .values(refreshToken, user.getId(),
+                        OffsetDateTime.now().plusSeconds(refreshTokenExpiration / 1000), false)
+                .execute();
 
         setAuthCookies(response, accessToken, refreshToken);
 
-        return new AuthResponse(accessToken, refreshToken, request.username(), "user@example.com", userType);
+        return new AuthResponse(accessToken, refreshToken, user.getUsername(), user.getEmail(), user.getRole());
     }
 
-    /**
-     * Refresh access token
-     * TODO: Implement with JOOQ after code generation
-     */
-    public AuthResponse refreshToken(String refreshToken, HttpServletResponse response) {
-        // TODO: Implement token refresh with JOOQ
-        // 1. Validate refresh token
-        // 2. Check if token exists in database and not revoked
-        // 3. Extract username and userType
-        // 4. Generate new access token
-        // 5. Set cookie
-        // 6. Return AuthResponse
+    @Transactional
+    public AuthResponse refreshToken(String refreshTokenValue, HttpServletResponse response) {
+        var tokenRow = dsl.select(REFRESH_TOKEN.REVOKED, REFRESH_TOKEN.EXPIRY_DATE)
+                .from(REFRESH_TOKEN)
+                .where(REFRESH_TOKEN.TOKEN.eq(refreshTokenValue))
+                .fetchOne();
 
-        String username = jwtUtil.extractUsername(refreshToken);
-        String userType = jwtUtil.extractUserType(refreshToken);
+        if (tokenRow == null || Boolean.TRUE.equals(tokenRow.get(REFRESH_TOKEN.REVOKED))) {
+            throw new BadCredentialsException("Invalid or revoked refresh token");
+        }
 
-        String newAccessToken = jwtUtil.generateAccessToken(username, userType);
+        if (tokenRow.get(REFRESH_TOKEN.EXPIRY_DATE).isBefore(OffsetDateTime.now())) {
+            throw new BadCredentialsException("Refresh token expired");
+        }
 
+        String username = jwtUtil.extractUsername(refreshTokenValue);
+        AppUserRecord user = dsl.selectFrom(APP_USER)
+                .where(APP_USER.USERNAME.eq(username))
+                .fetchOne();
+
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+            throw new BadCredentialsException("User not found or disabled");
+        }
+
+        String newAccessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole());
         setAccessTokenCookie(response, newAccessToken);
 
-        return new AuthResponse(newAccessToken, refreshToken, username, "user@example.com", userType);
+        return new AuthResponse(newAccessToken, refreshTokenValue, user.getUsername(), user.getEmail(), user.getRole());
     }
 
-    /**
-     * Logout user
-     * TODO: Implement with JOOQ after code generation
-     */
-    public void logout(String refreshToken, HttpServletResponse response) {
-        // TODO: Implement logout with JOOQ
-        // 1. Revoke refresh token in database
-        // 2. Clear cookies
-
+    @Transactional
+    public void logout(String refreshTokenValue, HttpServletResponse response) {
+        if (refreshTokenValue != null) {
+            dsl.update(REFRESH_TOKEN)
+                    .set(REFRESH_TOKEN.REVOKED, true)
+                    .where(REFRESH_TOKEN.TOKEN.eq(refreshTokenValue))
+                    .execute();
+        }
         clearAuthCookies(response);
     }
 
@@ -125,32 +118,26 @@ public class AuthService {
     }
 
     private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        Cookie cookie = new Cookie("accessToken", accessToken);
-        cookie.setHttpOnly(cookieHttpOnly);
-        cookie.setSecure(cookieSecure);
-        cookie.setPath("/");
-        cookie.setMaxAge((int) (accessTokenExpiration / 1000));
-        response.addCookie(cookie);
+        addCookieHeader(response, "accessToken", accessToken, (int) (accessTokenExpiration / 1000));
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(cookieHttpOnly);
-        cookie.setSecure(cookieSecure);
-        cookie.setPath("/");
-        cookie.setMaxAge((int) (refreshTokenExpiration / 1000));
-        response.addCookie(cookie);
+        addCookieHeader(response, "refreshToken", refreshToken, (int) (refreshTokenExpiration / 1000));
+    }
+
+    private void addCookieHeader(HttpServletResponse response, String name, String value, int maxAge) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append("=").append(value);
+        sb.append("; Path=/");
+        sb.append("; Max-Age=").append(maxAge);
+        if (cookieHttpOnly) sb.append("; HttpOnly");
+        if (cookieSecure) sb.append("; Secure");
+        sb.append("; SameSite=Strict");
+        response.addHeader("Set-Cookie", sb.toString());
     }
 
     private void clearAuthCookies(HttpServletResponse response) {
-        Cookie accessTokenCookie = new Cookie("accessToken", null);
-        accessTokenCookie.setMaxAge(0);
-        accessTokenCookie.setPath("/");
-        response.addCookie(accessTokenCookie);
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        response.addCookie(refreshTokenCookie);
+        response.addHeader("Set-Cookie", "accessToken=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict");
+        response.addHeader("Set-Cookie", "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict");
     }
 }
