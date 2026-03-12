@@ -299,7 +299,7 @@ function DayView({ date, requests, onOpen }: { date: Date; requests: Request[]; 
                 {label}
               </div>
               <div className="px-3 py-1 min-h-[3rem] space-y-1">
-                {hrs.map(r => <EventChip key={r.id} r={r} onOpen={onOpen} showDate={false} />)}
+                {hrs.map(r => <EventChip key={r.id} r={r} onOpen={onOpen} />)}
               </div>
             </div>
           );
@@ -345,7 +345,7 @@ function WeekView({ anchor, requests, onOpen, onDayClick }: {
                 const dayHrReqs = requests.filter(r => requestOnDay(r, day) && requestRefTime(r).getHours() === hour);
                 return (
                   <div key={day.toISOString()} className={`px-1 py-0.5 min-h-[3rem] border-r border-gray-100 last:border-r-0 space-y-0.5 ${isNow ? 'bg-blue-50/40' : ''}`}>
-                    {dayHrReqs.map(r => <EventChip key={r.id} r={r} onOpen={onOpen} showDate={false} compact />)}
+                    {dayHrReqs.map(r => <EventChip key={r.id} r={r} onOpen={onOpen} compact />)}
                   </div>
                 );
               })}
@@ -393,7 +393,7 @@ function MonthView({ anchor, requests, onOpen, onDayClick }: {
                 {day.getDate()}
               </button>
               <div className="space-y-0.5">
-                {dayReqs.slice(0, 3).map(r => <EventChip key={r.id} r={r} onOpen={onOpen} showDate={false} compact />)}
+                {dayReqs.slice(0, 3).map(r => <EventChip key={r.id} r={r} onOpen={onOpen} compact />)}
                 {dayReqs.length > 3 && (
                   <button onClick={() => onDayClick(day)} className="text-xs text-gray-400 hover:text-blue-600 pl-1">
                     +{dayReqs.length - 3} more
@@ -410,7 +410,7 @@ function MonthView({ anchor, requests, onOpen, onDayClick }: {
 
 // ─── Event Chip ───────────────────────────────────────────────────────────────
 
-function EventChip({ r, onOpen, showDate, compact }: { r: Request; onOpen: (r: Request) => void; showDate: boolean; compact?: boolean }) {
+function EventChip({ r, onOpen, compact }: { r: Request; onOpen: (r: Request) => void; compact?: boolean }) {
   const timeLabel = r.startTime
     ? fmt.time(r.startTime) + (r.endTime ? ` – ${fmt.time(r.endTime)}` : '')
     : fmt.time(r.receivedAt);

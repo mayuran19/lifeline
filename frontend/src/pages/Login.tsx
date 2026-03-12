@@ -17,7 +17,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const userType = await login(username, password);
+      await login(username, password);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
