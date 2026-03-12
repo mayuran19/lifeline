@@ -38,5 +38,3 @@ build/
 ### Logs ###
 *.log
 
-### JOOQ Generated Files ###
-src/main/java/com/lifelinecalllog/jooq/
