@@ -32,23 +32,36 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Static resources and SPA client-side routes — not API, not authenticated
-                .requestMatchers("/", "/index.html", "/assets/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.svg", "/*.webmanifest").permitAll()
-                .requestMatchers("/login", "/admin-login", "/dashboard", "/requests/**", "/patients/**", "/doctors/**", "/clinics/**", "/profile/**", "/settings/**").permitAll()
-                // Public API
-                .requestMatchers("/api/v1/public/**").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                // Protected API
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Frontend static files
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/assets/**",
+                                "/favicon.ico",
+                                "/*.js",
+                                "/*.css",
+                                "/*.png",
+                                "/*.svg",
+                                "/*.webmanifest"
+                        ).permitAll()
+
+                        // Public APIs
+                        .requestMatchers("/api/v1/public/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // Protected APIs
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
+
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

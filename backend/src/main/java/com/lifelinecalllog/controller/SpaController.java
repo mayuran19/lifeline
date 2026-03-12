@@ -1,8 +1,7 @@
 package com.lifelinecalllog.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Forwards all non-API routes to index.html for React client-side routing.
@@ -11,13 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SpaController {
 
-    @RequestMapping(value = "/{path:[^\\.]*}")
-    public String forwardTopLevel(HttpServletRequest request) {
-        return "forward:/index.html";
-    }
-
-    @RequestMapping(value = "/{path:[^\\.]*}/**")
-    public String forwardNested(HttpServletRequest request) {
+    @GetMapping(value = {
+            "/{path:^(?!api$).*$}",
+            "/**/{path:^(?!api$).*$}"
+    })
+    public String forward() {
         return "forward:/index.html";
     }
 }
