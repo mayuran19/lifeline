@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+  web:
+    resources:
+      add-mappings: false  # WebMvcConfig handles static serving with SPA fallback
+
+jwt:
+  secret: ${JWT_SECRET}
+
+cookie:
+  secure: true
+
+# In production the frontend is same-origin (served by Spring Boot), CORS is a safety net only.
+# Set APP_URL to your public domain, e.g. https://myapp.railway.app
+cors:
+  allowed-origins: ${APP_URL:http://localhost:8080}
+
+logging:
+  level:
+    com.lifelinecalllog: INFO
+    org.springframework.security: WARN
+    org.jooq: WARN

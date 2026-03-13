@@ -37,20 +37,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Disable AnonymousAuthenticationFilter — not needed for stateless JWT auth
+                // and avoids a circular deferred-context StackOverflow in Spring Security 7.
+                .anonymous(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Frontend static files
-                        .requestMatchers(
-                                "/",
-                                "/index.html",
-                                "/assets/**",
-                                "/favicon.ico",
-                                "/*.js",
-                                "/*.css",
-                                "/*.png",
-                                "/*.svg",
-                                "/*.webmanifest"
-                        ).permitAll()
-
                         // Public APIs
                         .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
@@ -58,8 +48,10 @@ public class SecurityConfig {
                         // Protected APIs
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/v1/**").authenticated()
 
-                        .anyRequest().authenticated()
+                        // Everything else is the React SPA — public, auth enforced client-side
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

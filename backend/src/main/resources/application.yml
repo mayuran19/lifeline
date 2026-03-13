@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: lifeline-call-log
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lifeline_app
+    username: lifeline_app
+    password: password
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+  jooq:
+    sql-dialect: POSTGRES
+  web:
+    resources:
+      add-mappings: false  # disabled — WebMvcConfig registers its own handler with SPA fallback
+
+server:
+  port: 8080
+
+jwt:
+  secret: your-256-bit-secret-key-change-this-in-production-min-32-chars
+  access-token:
+    expiration: 900000
+  refresh-token:
+    expiration: 604800000
+
+cookie:
+  domain: localhost
+  secure: false
+  http-only: true
+  same-site: Strict
+
+cors:
+  allowed-origins: http://localhost:5173
+
+logging:
+  level:
+    com.lifelinecalllog: DEBUG
+    org.springframework.security: DEBUG
+    org.jooq: DEBUG
