@@ -31,6 +31,7 @@ public class DoctorHistory implements Serializable {
     private Integer version;
     private String dmlType;
     private OffsetDateTime historyCreatedDate;
+    private String prescriberNo;
 
     public DoctorHistory() {}
 
@@ -49,6 +50,7 @@ public class DoctorHistory implements Serializable {
         this.version = value.version;
         this.dmlType = value.dmlType;
         this.historyCreatedDate = value.historyCreatedDate;
+        this.prescriberNo = value.prescriberNo;
     }
 
     public DoctorHistory(
@@ -65,7 +67,8 @@ public class DoctorHistory implements Serializable {
         UUID lastModifiedBy,
         Integer version,
         String dmlType,
-        OffsetDateTime historyCreatedDate
+        OffsetDateTime historyCreatedDate,
+        String prescriberNo
     ) {
         this.id = id;
         this.firstName = firstName;
@@ -81,6 +84,7 @@ public class DoctorHistory implements Serializable {
         this.version = version;
         this.dmlType = dmlType;
         this.historyCreatedDate = historyCreatedDate;
+        this.prescriberNo = prescriberNo;
     }
 
     /**
@@ -293,6 +297,21 @@ public class DoctorHistory implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.doctor_history.prescriber_no</code>.
+     */
+    public String getPrescriberNo() {
+        return this.prescriberNo;
+    }
+
+    /**
+     * Setter for <code>public.doctor_history.prescriber_no</code>.
+     */
+    public DoctorHistory setPrescriberNo(String prescriberNo) {
+        this.prescriberNo = prescriberNo;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -386,6 +405,12 @@ public class DoctorHistory implements Serializable {
         }
         else if (!this.historyCreatedDate.equals(other.historyCreatedDate))
             return false;
+        if (this.prescriberNo == null) {
+            if (other.prescriberNo != null)
+                return false;
+        }
+        else if (!this.prescriberNo.equals(other.prescriberNo))
+            return false;
         return true;
     }
 
@@ -407,6 +432,7 @@ public class DoctorHistory implements Serializable {
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
         result = prime * result + ((this.dmlType == null) ? 0 : this.dmlType.hashCode());
         result = prime * result + ((this.historyCreatedDate == null) ? 0 : this.historyCreatedDate.hashCode());
+        result = prime * result + ((this.prescriberNo == null) ? 0 : this.prescriberNo.hashCode());
         return result;
     }
 
@@ -428,6 +454,7 @@ public class DoctorHistory implements Serializable {
         sb.append(", ").append(version);
         sb.append(", ").append(dmlType);
         sb.append(", ").append(historyCreatedDate);
+        sb.append(", ").append(prescriberNo);
 
         sb.append(")");
         return sb.toString();

@@ -8,6 +8,7 @@ import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Keys;
 import com.lifelinecalllog.jooq.Public;
 import com.lifelinecalllog.jooq.tables.Clinic.ClinicPath;
+import com.lifelinecalllog.jooq.tables.ClinicLocation.ClinicLocationPath;
 import com.lifelinecalllog.jooq.tables.Patient.PatientPath;
 import com.lifelinecalllog.jooq.tables.records.PatientClinicRecord;
 
@@ -106,6 +107,11 @@ public class PatientClinic extends TableImpl<PatientClinicRecord> {
      */
     public final TableField<PatientClinicRecord, Integer> VERSION = createField(DSL.name("version"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("1"), SQLDataType.INTEGER)), this, "");
 
+    /**
+     * The column <code>public.patient_clinic.clinic_location_id</code>.
+     */
+    public final TableField<PatientClinicRecord, UUID> CLINIC_LOCATION_ID = createField(DSL.name("clinic_location_id"), SQLDataType.UUID, this, "");
+
     private PatientClinic(Name alias, Table<PatientClinicRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }
@@ -175,7 +181,7 @@ public class PatientClinic extends TableImpl<PatientClinicRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.IDX_PATIENT_CLINIC_CLINIC_ID, Indexes.IDX_PATIENT_CLINIC_CURRENT, Indexes.IDX_PATIENT_CLINIC_PATIENT_ID);
+        return Arrays.asList(Indexes.IDX_PATIENT_CLINIC_CLINIC_ID, Indexes.IDX_PATIENT_CLINIC_CURRENT, Indexes.IDX_PATIENT_CLINIC_LOCATION_ID, Indexes.IDX_PATIENT_CLINIC_PATIENT_ID);
     }
 
     @Override
@@ -185,7 +191,7 @@ public class PatientClinic extends TableImpl<PatientClinicRecord> {
 
     @Override
     public List<ForeignKey<PatientClinicRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_CLINIC, Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_PATIENT);
+        return Arrays.asList(Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_CLINIC, Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_LOCATION, Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_PATIENT);
     }
 
     private transient ClinicPath _clinic;
@@ -198,6 +204,19 @@ public class PatientClinic extends TableImpl<PatientClinicRecord> {
             _clinic = new ClinicPath(this, Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_CLINIC, null);
 
         return _clinic;
+    }
+
+    private transient ClinicLocationPath _clinicLocation;
+
+    /**
+     * Get the implicit join path to the <code>public.clinic_location</code>
+     * table.
+     */
+    public ClinicLocationPath clinicLocation() {
+        if (_clinicLocation == null)
+            _clinicLocation = new ClinicLocationPath(this, Keys.PATIENT_CLINIC__FK_PATIENT_CLINIC_LOCATION, null);
+
+        return _clinicLocation;
     }
 
     private transient PatientPath _patient;

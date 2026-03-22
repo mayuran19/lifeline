@@ -234,4 +234,19 @@ public class DoctorDao extends DAOImpl<DoctorRecord, com.lifelinecalllog.jooq.ta
     public List<com.lifelinecalllog.jooq.tables.pojos.Doctor> fetchByVersion(Integer... values) {
         return fetch(Doctor.DOCTOR.VERSION, values);
     }
+
+    /**
+     * Fetch records that have <code>prescriber_no BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Doctor> fetchRangeOfPrescriberNo(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Doctor.DOCTOR.PRESCRIBER_NO, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>prescriber_no IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Doctor> fetchByPrescriberNo(String... values) {
+        return fetch(Doctor.DOCTOR.PRESCRIBER_NO, values);
+    }
 }

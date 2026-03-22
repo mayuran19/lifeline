@@ -109,6 +109,11 @@ public class PatientClinicHistory extends TableImpl<PatientClinicHistoryRecord> 
      */
     public final TableField<PatientClinicHistoryRecord, OffsetDateTime> HISTORY_CREATED_DATE = createField(DSL.name("history_created_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
 
+    /**
+     * The column <code>public.patient_clinic_history.clinic_location_id</code>.
+     */
+    public final TableField<PatientClinicHistoryRecord, UUID> CLINIC_LOCATION_ID = createField(DSL.name("clinic_location_id"), SQLDataType.UUID, this, "");
+
     private PatientClinicHistory(Name alias, Table<PatientClinicHistoryRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

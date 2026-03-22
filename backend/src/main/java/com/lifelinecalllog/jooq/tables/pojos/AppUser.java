@@ -30,6 +30,8 @@ public class AppUser implements Serializable {
     private OffsetDateTime lastModifiedDate;
     private UUID lastModifiedBy;
     private Integer version;
+    private Integer failedLoginAttempts;
+    private OffsetDateTime lockedUntil;
 
     public AppUser() {}
 
@@ -47,6 +49,8 @@ public class AppUser implements Serializable {
         this.lastModifiedDate = value.lastModifiedDate;
         this.lastModifiedBy = value.lastModifiedBy;
         this.version = value.version;
+        this.failedLoginAttempts = value.failedLoginAttempts;
+        this.lockedUntil = value.lockedUntil;
     }
 
     public AppUser(
@@ -62,7 +66,9 @@ public class AppUser implements Serializable {
         UUID createdBy,
         OffsetDateTime lastModifiedDate,
         UUID lastModifiedBy,
-        Integer version
+        Integer version,
+        Integer failedLoginAttempts,
+        OffsetDateTime lockedUntil
     ) {
         this.id = id;
         this.username = username;
@@ -77,6 +83,8 @@ public class AppUser implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
         this.lastModifiedBy = lastModifiedBy;
         this.version = version;
+        this.failedLoginAttempts = failedLoginAttempts;
+        this.lockedUntil = lockedUntil;
     }
 
     /**
@@ -274,6 +282,36 @@ public class AppUser implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.app_user.failed_login_attempts</code>.
+     */
+    public Integer getFailedLoginAttempts() {
+        return this.failedLoginAttempts;
+    }
+
+    /**
+     * Setter for <code>public.app_user.failed_login_attempts</code>.
+     */
+    public AppUser setFailedLoginAttempts(Integer failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.app_user.locked_until</code>.
+     */
+    public OffsetDateTime getLockedUntil() {
+        return this.lockedUntil;
+    }
+
+    /**
+     * Setter for <code>public.app_user.locked_until</code>.
+     */
+    public AppUser setLockedUntil(OffsetDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -361,6 +399,18 @@ public class AppUser implements Serializable {
         }
         else if (!this.version.equals(other.version))
             return false;
+        if (this.failedLoginAttempts == null) {
+            if (other.failedLoginAttempts != null)
+                return false;
+        }
+        else if (!this.failedLoginAttempts.equals(other.failedLoginAttempts))
+            return false;
+        if (this.lockedUntil == null) {
+            if (other.lockedUntil != null)
+                return false;
+        }
+        else if (!this.lockedUntil.equals(other.lockedUntil))
+            return false;
         return true;
     }
 
@@ -381,6 +431,8 @@ public class AppUser implements Serializable {
         result = prime * result + ((this.lastModifiedDate == null) ? 0 : this.lastModifiedDate.hashCode());
         result = prime * result + ((this.lastModifiedBy == null) ? 0 : this.lastModifiedBy.hashCode());
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
+        result = prime * result + ((this.failedLoginAttempts == null) ? 0 : this.failedLoginAttempts.hashCode());
+        result = prime * result + ((this.lockedUntil == null) ? 0 : this.lockedUntil.hashCode());
         return result;
     }
 
@@ -401,6 +453,8 @@ public class AppUser implements Serializable {
         sb.append(", ").append(lastModifiedDate);
         sb.append(", ").append(lastModifiedBy);
         sb.append(", ").append(version);
+        sb.append(", ").append(failedLoginAttempts);
+        sb.append(", ").append(lockedUntil);
 
         sb.append(")");
         return sb.toString();

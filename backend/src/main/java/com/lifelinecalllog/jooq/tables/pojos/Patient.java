@@ -4,6 +4,8 @@
 package com.lifelinecalllog.jooq.tables.pojos;
 
 
+import com.lifelinecalllog.jooq.enums.PatientStatus;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -23,12 +25,17 @@ public class Patient implements Serializable {
     private String lastName;
     private LocalDate dateOfBirth;
     private String phone;
-    private Boolean active;
     private OffsetDateTime createdDate;
     private UUID createdBy;
     private OffsetDateTime lastModifiedDate;
     private UUID lastModifiedBy;
     private Integer version;
+    private PatientStatus status;
+    private String statusReason;
+    private LocalDate deceasedDate;
+    private String medicareNo;
+    private String irnNo;
+    private String remark;
 
     public Patient() {}
 
@@ -38,12 +45,17 @@ public class Patient implements Serializable {
         this.lastName = value.lastName;
         this.dateOfBirth = value.dateOfBirth;
         this.phone = value.phone;
-        this.active = value.active;
         this.createdDate = value.createdDate;
         this.createdBy = value.createdBy;
         this.lastModifiedDate = value.lastModifiedDate;
         this.lastModifiedBy = value.lastModifiedBy;
         this.version = value.version;
+        this.status = value.status;
+        this.statusReason = value.statusReason;
+        this.deceasedDate = value.deceasedDate;
+        this.medicareNo = value.medicareNo;
+        this.irnNo = value.irnNo;
+        this.remark = value.remark;
     }
 
     public Patient(
@@ -52,24 +64,34 @@ public class Patient implements Serializable {
         String lastName,
         LocalDate dateOfBirth,
         String phone,
-        Boolean active,
         OffsetDateTime createdDate,
         UUID createdBy,
         OffsetDateTime lastModifiedDate,
         UUID lastModifiedBy,
-        Integer version
+        Integer version,
+        PatientStatus status,
+        String statusReason,
+        LocalDate deceasedDate,
+        String medicareNo,
+        String irnNo,
+        String remark
     ) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.phone = phone;
-        this.active = active;
         this.createdDate = createdDate;
         this.createdBy = createdBy;
         this.lastModifiedDate = lastModifiedDate;
         this.lastModifiedBy = lastModifiedBy;
         this.version = version;
+        this.status = status;
+        this.statusReason = statusReason;
+        this.deceasedDate = deceasedDate;
+        this.medicareNo = medicareNo;
+        this.irnNo = irnNo;
+        this.remark = remark;
     }
 
     /**
@@ -148,21 +170,6 @@ public class Patient implements Serializable {
     }
 
     /**
-     * Getter for <code>public.patient.active</code>.
-     */
-    public Boolean getActive() {
-        return this.active;
-    }
-
-    /**
-     * Setter for <code>public.patient.active</code>.
-     */
-    public Patient setActive(Boolean active) {
-        this.active = active;
-        return this;
-    }
-
-    /**
      * Getter for <code>public.patient.created_date</code>.
      */
     public OffsetDateTime getCreatedDate() {
@@ -237,6 +244,96 @@ public class Patient implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.patient.status</code>.
+     */
+    public PatientStatus getStatus() {
+        return this.status;
+    }
+
+    /**
+     * Setter for <code>public.patient.status</code>.
+     */
+    public Patient setStatus(PatientStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.status_reason</code>.
+     */
+    public String getStatusReason() {
+        return this.statusReason;
+    }
+
+    /**
+     * Setter for <code>public.patient.status_reason</code>.
+     */
+    public Patient setStatusReason(String statusReason) {
+        this.statusReason = statusReason;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.deceased_date</code>.
+     */
+    public LocalDate getDeceasedDate() {
+        return this.deceasedDate;
+    }
+
+    /**
+     * Setter for <code>public.patient.deceased_date</code>.
+     */
+    public Patient setDeceasedDate(LocalDate deceasedDate) {
+        this.deceasedDate = deceasedDate;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.medicare_no</code>.
+     */
+    public String getMedicareNo() {
+        return this.medicareNo;
+    }
+
+    /**
+     * Setter for <code>public.patient.medicare_no</code>.
+     */
+    public Patient setMedicareNo(String medicareNo) {
+        this.medicareNo = medicareNo;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.irn_no</code>.
+     */
+    public String getIrnNo() {
+        return this.irnNo;
+    }
+
+    /**
+     * Setter for <code>public.patient.irn_no</code>.
+     */
+    public Patient setIrnNo(String irnNo) {
+        this.irnNo = irnNo;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.remark</code>.
+     */
+    public String getRemark() {
+        return this.remark;
+    }
+
+    /**
+     * Setter for <code>public.patient.remark</code>.
+     */
+    public Patient setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -276,12 +373,6 @@ public class Patient implements Serializable {
         }
         else if (!this.phone.equals(other.phone))
             return false;
-        if (this.active == null) {
-            if (other.active != null)
-                return false;
-        }
-        else if (!this.active.equals(other.active))
-            return false;
         if (this.createdDate == null) {
             if (other.createdDate != null)
                 return false;
@@ -312,6 +403,42 @@ public class Patient implements Serializable {
         }
         else if (!this.version.equals(other.version))
             return false;
+        if (this.status == null) {
+            if (other.status != null)
+                return false;
+        }
+        else if (!this.status.equals(other.status))
+            return false;
+        if (this.statusReason == null) {
+            if (other.statusReason != null)
+                return false;
+        }
+        else if (!this.statusReason.equals(other.statusReason))
+            return false;
+        if (this.deceasedDate == null) {
+            if (other.deceasedDate != null)
+                return false;
+        }
+        else if (!this.deceasedDate.equals(other.deceasedDate))
+            return false;
+        if (this.medicareNo == null) {
+            if (other.medicareNo != null)
+                return false;
+        }
+        else if (!this.medicareNo.equals(other.medicareNo))
+            return false;
+        if (this.irnNo == null) {
+            if (other.irnNo != null)
+                return false;
+        }
+        else if (!this.irnNo.equals(other.irnNo))
+            return false;
+        if (this.remark == null) {
+            if (other.remark != null)
+                return false;
+        }
+        else if (!this.remark.equals(other.remark))
+            return false;
         return true;
     }
 
@@ -324,12 +451,17 @@ public class Patient implements Serializable {
         result = prime * result + ((this.lastName == null) ? 0 : this.lastName.hashCode());
         result = prime * result + ((this.dateOfBirth == null) ? 0 : this.dateOfBirth.hashCode());
         result = prime * result + ((this.phone == null) ? 0 : this.phone.hashCode());
-        result = prime * result + ((this.active == null) ? 0 : this.active.hashCode());
         result = prime * result + ((this.createdDate == null) ? 0 : this.createdDate.hashCode());
         result = prime * result + ((this.createdBy == null) ? 0 : this.createdBy.hashCode());
         result = prime * result + ((this.lastModifiedDate == null) ? 0 : this.lastModifiedDate.hashCode());
         result = prime * result + ((this.lastModifiedBy == null) ? 0 : this.lastModifiedBy.hashCode());
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
+        result = prime * result + ((this.status == null) ? 0 : this.status.hashCode());
+        result = prime * result + ((this.statusReason == null) ? 0 : this.statusReason.hashCode());
+        result = prime * result + ((this.deceasedDate == null) ? 0 : this.deceasedDate.hashCode());
+        result = prime * result + ((this.medicareNo == null) ? 0 : this.medicareNo.hashCode());
+        result = prime * result + ((this.irnNo == null) ? 0 : this.irnNo.hashCode());
+        result = prime * result + ((this.remark == null) ? 0 : this.remark.hashCode());
         return result;
     }
 
@@ -342,12 +474,17 @@ public class Patient implements Serializable {
         sb.append(", ").append(lastName);
         sb.append(", ").append(dateOfBirth);
         sb.append(", ").append(phone);
-        sb.append(", ").append(active);
         sb.append(", ").append(createdDate);
         sb.append(", ").append(createdBy);
         sb.append(", ").append(lastModifiedDate);
         sb.append(", ").append(lastModifiedBy);
         sb.append(", ").append(version);
+        sb.append(", ").append(status);
+        sb.append(", ").append(statusReason);
+        sb.append(", ").append(deceasedDate);
+        sb.append(", ").append(medicareNo);
+        sb.append(", ").append(irnNo);
+        sb.append(", ").append(remark);
 
         sb.append(")");
         return sb.toString();

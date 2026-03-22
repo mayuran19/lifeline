@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
@@ -42,12 +42,12 @@ export default function Login() {
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+                Email
               </label>
               <input
                 id="username"
                 name="username"
-                type="text"
+                type="email"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 value={username}
@@ -78,6 +78,11 @@ export default function Login() {
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
+          </div>
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot your password?
+            </Link>
           </div>
         </form>
       </div>

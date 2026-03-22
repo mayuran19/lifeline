@@ -4,6 +4,7 @@
 package com.lifelinecalllog.jooq.tables.daos;
 
 
+import com.lifelinecalllog.jooq.enums.PatientStatus;
 import com.lifelinecalllog.jooq.tables.Patient;
 import com.lifelinecalllog.jooq.tables.records.PatientRecord;
 
@@ -132,21 +133,6 @@ public class PatientDao extends DAOImpl<PatientRecord, com.lifelinecalllog.jooq.
     }
 
     /**
-     * Fetch records that have <code>active BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfActive(Boolean lowerInclusive, Boolean upperInclusive) {
-        return fetchRange(Patient.PATIENT.ACTIVE, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>active IN (values)</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByActive(Boolean... values) {
-        return fetch(Patient.PATIENT.ACTIVE, values);
-    }
-
-    /**
      * Fetch records that have <code>created_date BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
@@ -219,5 +205,95 @@ public class PatientDao extends DAOImpl<PatientRecord, com.lifelinecalllog.jooq.
      */
     public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByVersion(Integer... values) {
         return fetch(Patient.PATIENT.VERSION, values);
+    }
+
+    /**
+     * Fetch records that have <code>status BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfStatus(PatientStatus lowerInclusive, PatientStatus upperInclusive) {
+        return fetchRange(Patient.PATIENT.STATUS, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>status IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByStatus(PatientStatus... values) {
+        return fetch(Patient.PATIENT.STATUS, values);
+    }
+
+    /**
+     * Fetch records that have <code>status_reason BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfStatusReason(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Patient.PATIENT.STATUS_REASON, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>status_reason IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByStatusReason(String... values) {
+        return fetch(Patient.PATIENT.STATUS_REASON, values);
+    }
+
+    /**
+     * Fetch records that have <code>deceased_date BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfDeceasedDate(LocalDate lowerInclusive, LocalDate upperInclusive) {
+        return fetchRange(Patient.PATIENT.DECEASED_DATE, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>deceased_date IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByDeceasedDate(LocalDate... values) {
+        return fetch(Patient.PATIENT.DECEASED_DATE, values);
+    }
+
+    /**
+     * Fetch records that have <code>medicare_no BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfMedicareNo(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Patient.PATIENT.MEDICARE_NO, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>medicare_no IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByMedicareNo(String... values) {
+        return fetch(Patient.PATIENT.MEDICARE_NO, values);
+    }
+
+    /**
+     * Fetch records that have <code>irn_no BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfIrnNo(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Patient.PATIENT.IRN_NO, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>irn_no IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByIrnNo(String... values) {
+        return fetch(Patient.PATIENT.IRN_NO, values);
+    }
+
+    /**
+     * Fetch records that have <code>remark BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchRangeOfRemark(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Patient.PATIENT.REMARK, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>remark IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Patient> fetchByRemark(String... values) {
+        return fetch(Patient.PATIENT.REMARK, values);
     }
 }

@@ -1,14 +1,15 @@
 import axios from '../lib/axios';
 
-export type VisitType = 'ROUTINE_ROUND' | 'URGENT' | 'AFTER_HOURS' | 'PHONE_CONSULT';
-export type Urgency = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
-export type RequestStatus = 'RECEIVED' | 'IN_PROGRESS' | 'COMPLETED';
+export type VisitType = string;
+export type Urgency = string;
+export type RequestStatus = string;
 
 export interface RequestPatient {
   requestPatientId: string;
   patientId: string;
   patientFirstName: string;
   patientLastName: string;
+  medicareNo: string | null;
   notes: string | null;
 }
 
@@ -16,8 +17,12 @@ export interface Request {
   id: string;
   clinicId: string;
   clinicName: string;
+  clinicLocationId: string | null;
+  clinicLocationName: string | null;
   doctorId: string | null;
   doctorName: string | null;
+  enteredBy: string | null;
+  enteredByName: string | null;
   visitType: VisitType;
   urgency: Urgency;
   status: RequestStatus;
@@ -35,25 +40,28 @@ export interface Request {
 
 export interface RequestCreateRequest {
   clinicId: string;
+  clinicLocationId?: string;
   doctorId?: string;
+  enteredBy?: string;
   visitType: VisitType;
   urgency: Urgency;
   requestDetails?: string;
   receivedAt?: string;
-  startTime?: string;
-  endTime?: string;
   patients?: { patientId: string; notes?: string }[];
 }
 
 export interface RequestUpdateRequest {
-  doctorId?: string;
+  clinicId?: string;
+  clinicLocationId?: string | null;
+  doctorId?: string | null;
+  enteredBy?: string | null;
   visitType?: VisitType;
   urgency?: Urgency;
   status?: RequestStatus;
   requestDetails?: string;
   receivedAt?: string;
-  startTime?: string;
-  endTime?: string;
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 export const requestService = {
@@ -82,6 +90,14 @@ export const requestService = {
   },
   async removePatient(requestId: string, requestPatientId: string): Promise<Request> {
     const res = await axios.delete<Request>(`/v1/admin/requests/${requestId}/patients/${requestPatientId}`);
+    return res.data;
+  },
+  async getUsers(): Promise<{ id: string; username: string; firstName: string | null; lastName: string | null }[]> {
+    const res = await axios.get('/v1/admin/requests/users');
+    return res.data;
+  },
+  async searchPatients(search: string): Promise<{ id: string; firstName: string; lastName: string; medicareNo: string | null }[]> {
+    const res = await axios.get('/v1/admin/patients', { params: { activeOnly: true, search } });
     return res.data;
   },
 };

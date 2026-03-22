@@ -7,9 +7,20 @@ package com.lifelinecalllog.jooq;
 import com.lifelinecalllog.jooq.tables.AppUser;
 import com.lifelinecalllog.jooq.tables.AppUserHistory;
 import com.lifelinecalllog.jooq.tables.Clinic;
+import com.lifelinecalllog.jooq.tables.ClinicEmail;
+import com.lifelinecalllog.jooq.tables.ClinicEmailHistory;
 import com.lifelinecalllog.jooq.tables.ClinicHistory;
+import com.lifelinecalllog.jooq.tables.ClinicLocation;
+import com.lifelinecalllog.jooq.tables.ClinicLocationEmail;
+import com.lifelinecalllog.jooq.tables.ClinicLocationEmailHistory;
+import com.lifelinecalllog.jooq.tables.ClinicLocationHistory;
+import com.lifelinecalllog.jooq.tables.Configuration;
+import com.lifelinecalllog.jooq.tables.ConfigurationHistory;
 import com.lifelinecalllog.jooq.tables.Doctor;
+import com.lifelinecalllog.jooq.tables.DoctorClinic;
+import com.lifelinecalllog.jooq.tables.DoctorClinicHistory;
 import com.lifelinecalllog.jooq.tables.DoctorHistory;
+import com.lifelinecalllog.jooq.tables.PasswordResetToken;
 import com.lifelinecalllog.jooq.tables.Patient;
 import com.lifelinecalllog.jooq.tables.PatientClinic;
 import com.lifelinecalllog.jooq.tables.PatientClinicHistory;
@@ -58,9 +69,49 @@ public class Public extends SchemaImpl {
     public final Clinic CLINIC = Clinic.CLINIC;
 
     /**
+     * The table <code>public.clinic_email</code>.
+     */
+    public final ClinicEmail CLINIC_EMAIL = ClinicEmail.CLINIC_EMAIL;
+
+    /**
+     * The table <code>public.clinic_email_history</code>.
+     */
+    public final ClinicEmailHistory CLINIC_EMAIL_HISTORY = ClinicEmailHistory.CLINIC_EMAIL_HISTORY;
+
+    /**
      * The table <code>public.clinic_history</code>.
      */
     public final ClinicHistory CLINIC_HISTORY = ClinicHistory.CLINIC_HISTORY;
+
+    /**
+     * The table <code>public.clinic_location</code>.
+     */
+    public final ClinicLocation CLINIC_LOCATION = ClinicLocation.CLINIC_LOCATION;
+
+    /**
+     * The table <code>public.clinic_location_email</code>.
+     */
+    public final ClinicLocationEmail CLINIC_LOCATION_EMAIL = ClinicLocationEmail.CLINIC_LOCATION_EMAIL;
+
+    /**
+     * The table <code>public.clinic_location_email_history</code>.
+     */
+    public final ClinicLocationEmailHistory CLINIC_LOCATION_EMAIL_HISTORY = ClinicLocationEmailHistory.CLINIC_LOCATION_EMAIL_HISTORY;
+
+    /**
+     * The table <code>public.clinic_location_history</code>.
+     */
+    public final ClinicLocationHistory CLINIC_LOCATION_HISTORY = ClinicLocationHistory.CLINIC_LOCATION_HISTORY;
+
+    /**
+     * The table <code>public.configuration</code>.
+     */
+    public final Configuration CONFIGURATION = Configuration.CONFIGURATION;
+
+    /**
+     * The table <code>public.configuration_history</code>.
+     */
+    public final ConfigurationHistory CONFIGURATION_HISTORY = ConfigurationHistory.CONFIGURATION_HISTORY;
 
     /**
      * The table <code>public.doctor</code>.
@@ -68,9 +119,24 @@ public class Public extends SchemaImpl {
     public final Doctor DOCTOR = Doctor.DOCTOR;
 
     /**
+     * The table <code>public.doctor_clinic</code>.
+     */
+    public final DoctorClinic DOCTOR_CLINIC = DoctorClinic.DOCTOR_CLINIC;
+
+    /**
+     * The table <code>public.doctor_clinic_history</code>.
+     */
+    public final DoctorClinicHistory DOCTOR_CLINIC_HISTORY = DoctorClinicHistory.DOCTOR_CLINIC_HISTORY;
+
+    /**
      * The table <code>public.doctor_history</code>.
      */
     public final DoctorHistory DOCTOR_HISTORY = DoctorHistory.DOCTOR_HISTORY;
+
+    /**
+     * The table <code>public.password_reset_token</code>.
+     */
+    public final PasswordResetToken PASSWORD_RESET_TOKEN = PasswordResetToken.PASSWORD_RESET_TOKEN;
 
     /**
      * The table <code>public.patient</code>.
@@ -141,9 +207,20 @@ public class Public extends SchemaImpl {
             AppUser.APP_USER,
             AppUserHistory.APP_USER_HISTORY,
             Clinic.CLINIC,
+            ClinicEmail.CLINIC_EMAIL,
+            ClinicEmailHistory.CLINIC_EMAIL_HISTORY,
             ClinicHistory.CLINIC_HISTORY,
+            ClinicLocation.CLINIC_LOCATION,
+            ClinicLocationEmail.CLINIC_LOCATION_EMAIL,
+            ClinicLocationEmailHistory.CLINIC_LOCATION_EMAIL_HISTORY,
+            ClinicLocationHistory.CLINIC_LOCATION_HISTORY,
+            Configuration.CONFIGURATION,
+            ConfigurationHistory.CONFIGURATION_HISTORY,
             Doctor.DOCTOR,
+            DoctorClinic.DOCTOR_CLINIC,
+            DoctorClinicHistory.DOCTOR_CLINIC_HISTORY,
             DoctorHistory.DOCTOR_HISTORY,
+            PasswordResetToken.PASSWORD_RESET_TOKEN,
             Patient.PATIENT,
             PatientClinic.PATIENT_CLINIC,
             PatientClinicHistory.PATIENT_CLINIC_HISTORY,

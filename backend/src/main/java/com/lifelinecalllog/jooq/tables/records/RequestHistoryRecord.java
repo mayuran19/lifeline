@@ -4,9 +4,6 @@
 package com.lifelinecalllog.jooq.tables.records;
 
 
-import com.lifelinecalllog.jooq.enums.RequestStatus;
-import com.lifelinecalllog.jooq.enums.Urgency;
-import com.lifelinecalllog.jooq.enums.VisitType;
 import com.lifelinecalllog.jooq.tables.RequestHistory;
 
 import java.time.OffsetDateTime;
@@ -71,7 +68,7 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
     /**
      * Setter for <code>public.request_history.visit_type</code>.
      */
-    public RequestHistoryRecord setVisitType(VisitType value) {
+    public RequestHistoryRecord setVisitType(String value) {
         set(3, value);
         return this;
     }
@@ -79,14 +76,14 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
     /**
      * Getter for <code>public.request_history.visit_type</code>.
      */
-    public VisitType getVisitType() {
-        return (VisitType) get(3);
+    public String getVisitType() {
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>public.request_history.urgency</code>.
      */
-    public RequestHistoryRecord setUrgency(Urgency value) {
+    public RequestHistoryRecord setUrgency(String value) {
         set(4, value);
         return this;
     }
@@ -94,14 +91,14 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
     /**
      * Getter for <code>public.request_history.urgency</code>.
      */
-    public Urgency getUrgency() {
-        return (Urgency) get(4);
+    public String getUrgency() {
+        return (String) get(4);
     }
 
     /**
      * Setter for <code>public.request_history.status</code>.
      */
-    public RequestHistoryRecord setStatus(RequestStatus value) {
+    public RequestHistoryRecord setStatus(String value) {
         set(5, value);
         return this;
     }
@@ -109,8 +106,8 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
     /**
      * Getter for <code>public.request_history.status</code>.
      */
-    public RequestStatus getStatus() {
-        return (RequestStatus) get(5);
+    public String getStatus() {
+        return (String) get(5);
     }
 
     /**
@@ -278,6 +275,36 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
         return (OffsetDateTime) get(16);
     }
 
+    /**
+     * Setter for <code>public.request_history.clinic_location_id</code>.
+     */
+    public RequestHistoryRecord setClinicLocationId(UUID value) {
+        set(17, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.request_history.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return (UUID) get(17);
+    }
+
+    /**
+     * Setter for <code>public.request_history.entered_by</code>.
+     */
+    public RequestHistoryRecord setEnteredBy(UUID value) {
+        set(18, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.request_history.entered_by</code>.
+     */
+    public UUID getEnteredBy() {
+        return (UUID) get(18);
+    }
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -292,7 +319,7 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
     /**
      * Create a detached, initialised RequestHistoryRecord
      */
-    public RequestHistoryRecord(UUID id, UUID clinicId, UUID doctorId, VisitType visitType, Urgency urgency, RequestStatus status, String requestDetails, OffsetDateTime receivedAt, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate, OffsetDateTime startTime, OffsetDateTime endTime) {
+    public RequestHistoryRecord(UUID id, UUID clinicId, UUID doctorId, String visitType, String urgency, String status, String requestDetails, OffsetDateTime receivedAt, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate, OffsetDateTime startTime, OffsetDateTime endTime, UUID clinicLocationId, UUID enteredBy) {
         super(RequestHistory.REQUEST_HISTORY);
 
         setId(id);
@@ -312,6 +339,8 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
         setHistoryCreatedDate(historyCreatedDate);
         setStartTime(startTime);
         setEndTime(endTime);
+        setClinicLocationId(clinicLocationId);
+        setEnteredBy(enteredBy);
         resetChangedOnNotNull();
     }
 
@@ -339,6 +368,8 @@ public class RequestHistoryRecord extends TableRecordImpl<RequestHistoryRecord> 
             setHistoryCreatedDate(value.getHistoryCreatedDate());
             setStartTime(value.getStartTime());
             setEndTime(value.getEndTime());
+            setClinicLocationId(value.getClinicLocationId());
+            setEnteredBy(value.getEnteredBy());
             resetChangedOnNotNull();
         }
     }

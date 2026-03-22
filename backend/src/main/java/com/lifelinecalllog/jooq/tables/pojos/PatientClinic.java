@@ -26,6 +26,7 @@ public class PatientClinic implements Serializable {
     private OffsetDateTime lastModifiedDate;
     private UUID lastModifiedBy;
     private Integer version;
+    private UUID clinicLocationId;
 
     public PatientClinic() {}
 
@@ -39,6 +40,7 @@ public class PatientClinic implements Serializable {
         this.lastModifiedDate = value.lastModifiedDate;
         this.lastModifiedBy = value.lastModifiedBy;
         this.version = value.version;
+        this.clinicLocationId = value.clinicLocationId;
     }
 
     public PatientClinic(
@@ -50,7 +52,8 @@ public class PatientClinic implements Serializable {
         UUID createdBy,
         OffsetDateTime lastModifiedDate,
         UUID lastModifiedBy,
-        Integer version
+        Integer version,
+        UUID clinicLocationId
     ) {
         this.id = id;
         this.patientId = patientId;
@@ -61,6 +64,7 @@ public class PatientClinic implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
         this.lastModifiedBy = lastModifiedBy;
         this.version = version;
+        this.clinicLocationId = clinicLocationId;
     }
 
     /**
@@ -198,6 +202,21 @@ public class PatientClinic implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.patient_clinic.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return this.clinicLocationId;
+    }
+
+    /**
+     * Setter for <code>public.patient_clinic.clinic_location_id</code>.
+     */
+    public PatientClinic setClinicLocationId(UUID clinicLocationId) {
+        this.clinicLocationId = clinicLocationId;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -261,6 +280,12 @@ public class PatientClinic implements Serializable {
         }
         else if (!this.version.equals(other.version))
             return false;
+        if (this.clinicLocationId == null) {
+            if (other.clinicLocationId != null)
+                return false;
+        }
+        else if (!this.clinicLocationId.equals(other.clinicLocationId))
+            return false;
         return true;
     }
 
@@ -277,6 +302,7 @@ public class PatientClinic implements Serializable {
         result = prime * result + ((this.lastModifiedDate == null) ? 0 : this.lastModifiedDate.hashCode());
         result = prime * result + ((this.lastModifiedBy == null) ? 0 : this.lastModifiedBy.hashCode());
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
+        result = prime * result + ((this.clinicLocationId == null) ? 0 : this.clinicLocationId.hashCode());
         return result;
     }
 
@@ -293,6 +319,7 @@ public class PatientClinic implements Serializable {
         sb.append(", ").append(lastModifiedDate);
         sb.append(", ").append(lastModifiedBy);
         sb.append(", ").append(version);
+        sb.append(", ").append(clinicLocationId);
 
         sb.append(")");
         return sb.toString();

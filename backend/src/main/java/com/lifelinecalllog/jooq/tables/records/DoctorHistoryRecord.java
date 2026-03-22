@@ -230,6 +230,21 @@ public class DoctorHistoryRecord extends TableRecordImpl<DoctorHistoryRecord> {
         return (OffsetDateTime) get(13);
     }
 
+    /**
+     * Setter for <code>public.doctor_history.prescriber_no</code>.
+     */
+    public DoctorHistoryRecord setPrescriberNo(String value) {
+        set(14, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.doctor_history.prescriber_no</code>.
+     */
+    public String getPrescriberNo() {
+        return (String) get(14);
+    }
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -244,7 +259,7 @@ public class DoctorHistoryRecord extends TableRecordImpl<DoctorHistoryRecord> {
     /**
      * Create a detached, initialised DoctorHistoryRecord
      */
-    public DoctorHistoryRecord(UUID id, String firstName, String lastName, String providerNumber, String phone, String email, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate) {
+    public DoctorHistoryRecord(UUID id, String firstName, String lastName, String providerNumber, String phone, String email, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate, String prescriberNo) {
         super(DoctorHistory.DOCTOR_HISTORY);
 
         setId(id);
@@ -261,6 +276,7 @@ public class DoctorHistoryRecord extends TableRecordImpl<DoctorHistoryRecord> {
         setVersion(version);
         setDmlType(dmlType);
         setHistoryCreatedDate(historyCreatedDate);
+        setPrescriberNo(prescriberNo);
         resetChangedOnNotNull();
     }
 
@@ -285,6 +301,7 @@ public class DoctorHistoryRecord extends TableRecordImpl<DoctorHistoryRecord> {
             setVersion(value.getVersion());
             setDmlType(value.getDmlType());
             setHistoryCreatedDate(value.getHistoryCreatedDate());
+            setPrescriberNo(value.getPrescriberNo());
             resetChangedOnNotNull();
         }
     }

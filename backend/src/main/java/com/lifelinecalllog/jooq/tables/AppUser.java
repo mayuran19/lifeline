@@ -7,7 +7,9 @@ package com.lifelinecalllog.jooq.tables;
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Keys;
 import com.lifelinecalllog.jooq.Public;
+import com.lifelinecalllog.jooq.tables.PasswordResetToken.PasswordResetTokenPath;
 import com.lifelinecalllog.jooq.tables.RefreshToken.RefreshTokenPath;
+import com.lifelinecalllog.jooq.tables.Request.RequestPath;
 import com.lifelinecalllog.jooq.tables.records.AppUserRecord;
 
 import java.time.OffsetDateTime;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.jooq.Check;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -35,6 +38,7 @@ import org.jooq.TableField;
 import org.jooq.TableOptions;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
+import org.jooq.impl.Internal;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
@@ -125,6 +129,16 @@ public class AppUser extends TableImpl<AppUserRecord> {
      */
     public final TableField<AppUserRecord, Integer> VERSION = createField(DSL.name("version"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("1"), SQLDataType.INTEGER)), this, "");
 
+    /**
+     * The column <code>public.app_user.failed_login_attempts</code>.
+     */
+    public final TableField<AppUserRecord, Integer> FAILED_LOGIN_ATTEMPTS = createField(DSL.name("failed_login_attempts"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "");
+
+    /**
+     * The column <code>public.app_user.locked_until</code>.
+     */
+    public final TableField<AppUserRecord, OffsetDateTime> LOCKED_UNTIL = createField(DSL.name("locked_until"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "");
+
     private AppUser(Name alias, Table<AppUserRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }
@@ -204,7 +218,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 
     @Override
     public List<UniqueKey<AppUserRecord>> getUniqueKeys() {
-        return Arrays.asList(Keys.APP_USER_EMAIL_KEY, Keys.APP_USER_USERNAME_KEY);
+        return Arrays.asList(Keys.APP_USER_EMAIL_KEY, Keys.APP_USER_USERNAME_KEY, Keys.UQ_APP_USER_EMAIL);
     }
 
     private transient RefreshTokenPath _refreshToken;
@@ -218,6 +232,39 @@ public class AppUser extends TableImpl<AppUserRecord> {
             _refreshToken = new RefreshTokenPath(this, null, Keys.REFRESH_TOKEN__FK_REFRESH_TOKEN_USER.getInverseKey());
 
         return _refreshToken;
+    }
+
+    private transient RequestPath _request;
+
+    /**
+     * Get the implicit to-many join path to the <code>public.request</code>
+     * table
+     */
+    public RequestPath request() {
+        if (_request == null)
+            _request = new RequestPath(this, null, Keys.REQUEST__FK_REQUEST_ENTERED_BY.getInverseKey());
+
+        return _request;
+    }
+
+    private transient PasswordResetTokenPath _passwordResetToken;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.password_reset_token</code> table
+     */
+    public PasswordResetTokenPath passwordResetToken() {
+        if (_passwordResetToken == null)
+            _passwordResetToken = new PasswordResetTokenPath(this, null, Keys.PASSWORD_RESET_TOKEN__PASSWORD_RESET_TOKEN_USER_ID_FKEY.getInverseKey());
+
+        return _passwordResetToken;
+    }
+
+    @Override
+    public List<Check<AppUserRecord>> getChecks() {
+        return Arrays.asList(
+            Internal.createCheck(this, DSL.name("chk_app_user_role"), "(((role)::text = ANY ((ARRAY['ROLE_ADMIN'::character varying, 'ROLE_OPERATOR'::character varying])::text[])))", true)
+        );
     }
 
     @Override

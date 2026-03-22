@@ -19,10 +19,8 @@ public class Clinic implements Serializable {
 
     private UUID id;
     private String name;
-    private String address;
     private String phone;
     private String fax;
-    private String email;
     private Boolean active;
     private OffsetDateTime createdDate;
     private UUID createdBy;
@@ -35,10 +33,8 @@ public class Clinic implements Serializable {
     public Clinic(Clinic value) {
         this.id = value.id;
         this.name = value.name;
-        this.address = value.address;
         this.phone = value.phone;
         this.fax = value.fax;
-        this.email = value.email;
         this.active = value.active;
         this.createdDate = value.createdDate;
         this.createdBy = value.createdBy;
@@ -50,10 +46,8 @@ public class Clinic implements Serializable {
     public Clinic(
         UUID id,
         String name,
-        String address,
         String phone,
         String fax,
-        String email,
         Boolean active,
         OffsetDateTime createdDate,
         UUID createdBy,
@@ -63,10 +57,8 @@ public class Clinic implements Serializable {
     ) {
         this.id = id;
         this.name = name;
-        this.address = address;
         this.phone = phone;
         this.fax = fax;
-        this.email = email;
         this.active = active;
         this.createdDate = createdDate;
         this.createdBy = createdBy;
@@ -106,21 +98,6 @@ public class Clinic implements Serializable {
     }
 
     /**
-     * Getter for <code>public.clinic.address</code>.
-     */
-    public String getAddress() {
-        return this.address;
-    }
-
-    /**
-     * Setter for <code>public.clinic.address</code>.
-     */
-    public Clinic setAddress(String address) {
-        this.address = address;
-        return this;
-    }
-
-    /**
      * Getter for <code>public.clinic.phone</code>.
      */
     public String getPhone() {
@@ -147,21 +124,6 @@ public class Clinic implements Serializable {
      */
     public Clinic setFax(String fax) {
         this.fax = fax;
-        return this;
-    }
-
-    /**
-     * Getter for <code>public.clinic.email</code>.
-     */
-    public String getEmail() {
-        return this.email;
-    }
-
-    /**
-     * Setter for <code>public.clinic.email</code>.
-     */
-    public Clinic setEmail(String email) {
-        this.email = email;
         return this;
     }
 
@@ -276,12 +238,6 @@ public class Clinic implements Serializable {
         }
         else if (!this.name.equals(other.name))
             return false;
-        if (this.address == null) {
-            if (other.address != null)
-                return false;
-        }
-        else if (!this.address.equals(other.address))
-            return false;
         if (this.phone == null) {
             if (other.phone != null)
                 return false;
@@ -293,12 +249,6 @@ public class Clinic implements Serializable {
                 return false;
         }
         else if (!this.fax.equals(other.fax))
-            return false;
-        if (this.email == null) {
-            if (other.email != null)
-                return false;
-        }
-        else if (!this.email.equals(other.email))
             return false;
         if (this.active == null) {
             if (other.active != null)
@@ -345,10 +295,8 @@ public class Clinic implements Serializable {
         int result = 1;
         result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
         result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
-        result = prime * result + ((this.address == null) ? 0 : this.address.hashCode());
         result = prime * result + ((this.phone == null) ? 0 : this.phone.hashCode());
         result = prime * result + ((this.fax == null) ? 0 : this.fax.hashCode());
-        result = prime * result + ((this.email == null) ? 0 : this.email.hashCode());
         result = prime * result + ((this.active == null) ? 0 : this.active.hashCode());
         result = prime * result + ((this.createdDate == null) ? 0 : this.createdDate.hashCode());
         result = prime * result + ((this.createdBy == null) ? 0 : this.createdBy.hashCode());
@@ -364,10 +312,8 @@ public class Clinic implements Serializable {
 
         sb.append(id);
         sb.append(", ").append(name);
-        sb.append(", ").append(address);
         sb.append(", ").append(phone);
         sb.append(", ").append(fax);
-        sb.append(", ").append(email);
         sb.append(", ").append(active);
         sb.append(", ").append(createdDate);
         sb.append(", ").append(createdBy);

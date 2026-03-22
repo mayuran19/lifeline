@@ -4,10 +4,6 @@
 package com.lifelinecalllog.jooq.tables.pojos;
 
 
-import com.lifelinecalllog.jooq.enums.RequestStatus;
-import com.lifelinecalllog.jooq.enums.Urgency;
-import com.lifelinecalllog.jooq.enums.VisitType;
-
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -24,9 +20,9 @@ public class Request implements Serializable {
     private UUID id;
     private UUID clinicId;
     private UUID doctorId;
-    private VisitType visitType;
-    private Urgency urgency;
-    private RequestStatus status;
+    private String visitType;
+    private String urgency;
+    private String status;
     private String requestDetails;
     private OffsetDateTime receivedAt;
     private OffsetDateTime createdDate;
@@ -36,6 +32,8 @@ public class Request implements Serializable {
     private Integer version;
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
+    private UUID clinicLocationId;
+    private UUID enteredBy;
 
     public Request() {}
 
@@ -55,15 +53,17 @@ public class Request implements Serializable {
         this.version = value.version;
         this.startTime = value.startTime;
         this.endTime = value.endTime;
+        this.clinicLocationId = value.clinicLocationId;
+        this.enteredBy = value.enteredBy;
     }
 
     public Request(
         UUID id,
         UUID clinicId,
         UUID doctorId,
-        VisitType visitType,
-        Urgency urgency,
-        RequestStatus status,
+        String visitType,
+        String urgency,
+        String status,
         String requestDetails,
         OffsetDateTime receivedAt,
         OffsetDateTime createdDate,
@@ -72,7 +72,9 @@ public class Request implements Serializable {
         UUID lastModifiedBy,
         Integer version,
         OffsetDateTime startTime,
-        OffsetDateTime endTime
+        OffsetDateTime endTime,
+        UUID clinicLocationId,
+        UUID enteredBy
     ) {
         this.id = id;
         this.clinicId = clinicId;
@@ -89,6 +91,8 @@ public class Request implements Serializable {
         this.version = version;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.clinicLocationId = clinicLocationId;
+        this.enteredBy = enteredBy;
     }
 
     /**
@@ -139,14 +143,14 @@ public class Request implements Serializable {
     /**
      * Getter for <code>public.request.visit_type</code>.
      */
-    public VisitType getVisitType() {
+    public String getVisitType() {
         return this.visitType;
     }
 
     /**
      * Setter for <code>public.request.visit_type</code>.
      */
-    public Request setVisitType(VisitType visitType) {
+    public Request setVisitType(String visitType) {
         this.visitType = visitType;
         return this;
     }
@@ -154,14 +158,14 @@ public class Request implements Serializable {
     /**
      * Getter for <code>public.request.urgency</code>.
      */
-    public Urgency getUrgency() {
+    public String getUrgency() {
         return this.urgency;
     }
 
     /**
      * Setter for <code>public.request.urgency</code>.
      */
-    public Request setUrgency(Urgency urgency) {
+    public Request setUrgency(String urgency) {
         this.urgency = urgency;
         return this;
     }
@@ -169,14 +173,14 @@ public class Request implements Serializable {
     /**
      * Getter for <code>public.request.status</code>.
      */
-    public RequestStatus getStatus() {
+    public String getStatus() {
         return this.status;
     }
 
     /**
      * Setter for <code>public.request.status</code>.
      */
-    public Request setStatus(RequestStatus status) {
+    public Request setStatus(String status) {
         this.status = status;
         return this;
     }
@@ -316,6 +320,36 @@ public class Request implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.request.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return this.clinicLocationId;
+    }
+
+    /**
+     * Setter for <code>public.request.clinic_location_id</code>.
+     */
+    public Request setClinicLocationId(UUID clinicLocationId) {
+        this.clinicLocationId = clinicLocationId;
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.request.entered_by</code>.
+     */
+    public UUID getEnteredBy() {
+        return this.enteredBy;
+    }
+
+    /**
+     * Setter for <code>public.request.entered_by</code>.
+     */
+    public Request setEnteredBy(UUID enteredBy) {
+        this.enteredBy = enteredBy;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -415,6 +449,18 @@ public class Request implements Serializable {
         }
         else if (!this.endTime.equals(other.endTime))
             return false;
+        if (this.clinicLocationId == null) {
+            if (other.clinicLocationId != null)
+                return false;
+        }
+        else if (!this.clinicLocationId.equals(other.clinicLocationId))
+            return false;
+        if (this.enteredBy == null) {
+            if (other.enteredBy != null)
+                return false;
+        }
+        else if (!this.enteredBy.equals(other.enteredBy))
+            return false;
         return true;
     }
 
@@ -437,6 +483,8 @@ public class Request implements Serializable {
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
         result = prime * result + ((this.startTime == null) ? 0 : this.startTime.hashCode());
         result = prime * result + ((this.endTime == null) ? 0 : this.endTime.hashCode());
+        result = prime * result + ((this.clinicLocationId == null) ? 0 : this.clinicLocationId.hashCode());
+        result = prime * result + ((this.enteredBy == null) ? 0 : this.enteredBy.hashCode());
         return result;
     }
 
@@ -459,6 +507,8 @@ public class Request implements Serializable {
         sb.append(", ").append(version);
         sb.append(", ").append(startTime);
         sb.append(", ").append(endTime);
+        sb.append(", ").append(clinicLocationId);
+        sb.append(", ").append(enteredBy);
 
         sb.append(")");
         return sb.toString();

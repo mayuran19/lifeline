@@ -4,6 +4,7 @@
 package com.lifelinecalllog.jooq.tables.records;
 
 
+import com.lifelinecalllog.jooq.enums.PatientStatus;
 import com.lifelinecalllog.jooq.tables.Patient;
 
 import java.time.LocalDate;
@@ -98,25 +99,10 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
     }
 
     /**
-     * Setter for <code>public.patient.active</code>.
-     */
-    public PatientRecord setActive(Boolean value) {
-        set(5, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>public.patient.active</code>.
-     */
-    public Boolean getActive() {
-        return (Boolean) get(5);
-    }
-
-    /**
      * Setter for <code>public.patient.created_date</code>.
      */
     public PatientRecord setCreatedDate(OffsetDateTime value) {
-        set(6, value);
+        set(5, value);
         return this;
     }
 
@@ -124,14 +110,14 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
      * Getter for <code>public.patient.created_date</code>.
      */
     public OffsetDateTime getCreatedDate() {
-        return (OffsetDateTime) get(6);
+        return (OffsetDateTime) get(5);
     }
 
     /**
      * Setter for <code>public.patient.created_by</code>.
      */
     public PatientRecord setCreatedBy(UUID value) {
-        set(7, value);
+        set(6, value);
         return this;
     }
 
@@ -139,14 +125,14 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
      * Getter for <code>public.patient.created_by</code>.
      */
     public UUID getCreatedBy() {
-        return (UUID) get(7);
+        return (UUID) get(6);
     }
 
     /**
      * Setter for <code>public.patient.last_modified_date</code>.
      */
     public PatientRecord setLastModifiedDate(OffsetDateTime value) {
-        set(8, value);
+        set(7, value);
         return this;
     }
 
@@ -154,14 +140,14 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
      * Getter for <code>public.patient.last_modified_date</code>.
      */
     public OffsetDateTime getLastModifiedDate() {
-        return (OffsetDateTime) get(8);
+        return (OffsetDateTime) get(7);
     }
 
     /**
      * Setter for <code>public.patient.last_modified_by</code>.
      */
     public PatientRecord setLastModifiedBy(UUID value) {
-        set(9, value);
+        set(8, value);
         return this;
     }
 
@@ -169,14 +155,14 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
      * Getter for <code>public.patient.last_modified_by</code>.
      */
     public UUID getLastModifiedBy() {
-        return (UUID) get(9);
+        return (UUID) get(8);
     }
 
     /**
      * Setter for <code>public.patient.version</code>.
      */
     public PatientRecord setVersion(Integer value) {
-        set(10, value);
+        set(9, value);
         return this;
     }
 
@@ -184,7 +170,97 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
      * Getter for <code>public.patient.version</code>.
      */
     public Integer getVersion() {
-        return (Integer) get(10);
+        return (Integer) get(9);
+    }
+
+    /**
+     * Setter for <code>public.patient.status</code>.
+     */
+    public PatientRecord setStatus(PatientStatus value) {
+        set(10, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.status</code>.
+     */
+    public PatientStatus getStatus() {
+        return (PatientStatus) get(10);
+    }
+
+    /**
+     * Setter for <code>public.patient.status_reason</code>.
+     */
+    public PatientRecord setStatusReason(String value) {
+        set(11, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.status_reason</code>.
+     */
+    public String getStatusReason() {
+        return (String) get(11);
+    }
+
+    /**
+     * Setter for <code>public.patient.deceased_date</code>.
+     */
+    public PatientRecord setDeceasedDate(LocalDate value) {
+        set(12, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.deceased_date</code>.
+     */
+    public LocalDate getDeceasedDate() {
+        return (LocalDate) get(12);
+    }
+
+    /**
+     * Setter for <code>public.patient.medicare_no</code>.
+     */
+    public PatientRecord setMedicareNo(String value) {
+        set(13, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.medicare_no</code>.
+     */
+    public String getMedicareNo() {
+        return (String) get(13);
+    }
+
+    /**
+     * Setter for <code>public.patient.irn_no</code>.
+     */
+    public PatientRecord setIrnNo(String value) {
+        set(14, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.irn_no</code>.
+     */
+    public String getIrnNo() {
+        return (String) get(14);
+    }
+
+    /**
+     * Setter for <code>public.patient.remark</code>.
+     */
+    public PatientRecord setRemark(String value) {
+        set(15, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient.remark</code>.
+     */
+    public String getRemark() {
+        return (String) get(15);
     }
 
     // -------------------------------------------------------------------------
@@ -210,7 +286,7 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
     /**
      * Create a detached, initialised PatientRecord
      */
-    public PatientRecord(UUID id, String firstName, String lastName, LocalDate dateOfBirth, String phone, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
+    public PatientRecord(UUID id, String firstName, String lastName, LocalDate dateOfBirth, String phone, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, PatientStatus status, String statusReason, LocalDate deceasedDate, String medicareNo, String irnNo, String remark) {
         super(Patient.PATIENT);
 
         setId(id);
@@ -218,12 +294,17 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
         setLastName(lastName);
         setDateOfBirth(dateOfBirth);
         setPhone(phone);
-        setActive(active);
         setCreatedDate(createdDate);
         setCreatedBy(createdBy);
         setLastModifiedDate(lastModifiedDate);
         setLastModifiedBy(lastModifiedBy);
         setVersion(version);
+        setStatus(status);
+        setStatusReason(statusReason);
+        setDeceasedDate(deceasedDate);
+        setMedicareNo(medicareNo);
+        setIrnNo(irnNo);
+        setRemark(remark);
         resetChangedOnNotNull();
     }
 
@@ -239,12 +320,17 @@ public class PatientRecord extends UpdatableRecordImpl<PatientRecord> {
             setLastName(value.getLastName());
             setDateOfBirth(value.getDateOfBirth());
             setPhone(value.getPhone());
-            setActive(value.getActive());
             setCreatedDate(value.getCreatedDate());
             setCreatedBy(value.getCreatedBy());
             setLastModifiedDate(value.getLastModifiedDate());
             setLastModifiedBy(value.getLastModifiedBy());
             setVersion(value.getVersion());
+            setStatus(value.getStatus());
+            setStatusReason(value.getStatusReason());
+            setDeceasedDate(value.getDeceasedDate());
+            setMedicareNo(value.getMedicareNo());
+            setIrnNo(value.getIrnNo());
+            setRemark(value.getRemark());
             resetChangedOnNotNull();
         }
     }

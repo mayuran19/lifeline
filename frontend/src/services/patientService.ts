@@ -1,16 +1,26 @@
 import axios from '../lib/axios';
 
+export type PatientStatus = 'ACTIVE' | 'INACTIVE' | 'DECEASED';
+
 export interface Patient {
   id: string;
   firstName: string;
   lastName: string;
   dateOfBirth: string | null;
   phone: string | null;
-  active: boolean;
+  medicareNo: string | null;
+  irnNo: string | null;
+  remark: string | null;
+  status: PatientStatus;
+  statusReason: string | null;
+  deceasedDate: string | null;
+  clinicId: string | null;
+  clinicName: string | null;
+  clinicLocationId: string | null;
+  clinicLocationName: string | null;
+  clinicLocationAddress: string | null;
   createdDate: string;
-  createdBy: string;
   lastModifiedDate: string;
-  lastModifiedBy: string;
   version: number;
 }
 
@@ -19,6 +29,14 @@ export interface PatientRequest {
   lastName: string;
   dateOfBirth?: string;
   phone?: string;
+  medicareNo?: string;
+  irnNo?: string;
+  remark?: string;
+  status?: PatientStatus;
+  statusReason?: string;
+  deceasedDate?: string;
+  clinicId?: string;
+  clinicLocationId?: string;
 }
 
 export const patientService = {
@@ -37,8 +55,5 @@ export const patientService = {
   async update(id: string, data: PatientRequest): Promise<Patient> {
     const res = await axios.put<Patient>(`/v1/admin/patients/${id}`, data);
     return res.data;
-  },
-  async deactivate(id: string): Promise<void> {
-    await axios.delete(`/v1/admin/patients/${id}`);
   },
 };

@@ -1,6 +1,8 @@
 package com.lifelinecalllog.config;
 
 import com.lifelinecalllog.security.JwtAuthenticationFilter;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,62 +19,64 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @Autowired private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${cors.allowed-origins:http://localhost:5173}")
-    private String allowedOrigins;
+  @Value("${cors.allowed-origins:http://localhost:5173}")
+  private String allowedOrigins;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Disable AnonymousAuthenticationFilter — not needed for stateless JWT auth
-                // and avoids a circular deferred-context StackOverflow in Spring Security 7.
-                .anonymous(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        // Public APIs
-                        .requestMatchers("/api/v1/public/**").permitAll()
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+    http.csrf(AbstractHttpConfigurer::disable)
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Disable AnonymousAuthenticationFilter — not needed for stateless JWT auth
+        // and avoids a circular deferred-context StackOverflow in Spring Security 7.
+        .anonymous(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            auth ->
+                auth
+                    // Public APIs
+                    .requestMatchers("/api/v1/public/**")
+                    .permitAll()
+                    .requestMatchers("/api/v1/auth/**")
+                    .permitAll()
 
-                        // Protected APIs
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
-                        .requestMatchers("/api/v1/**").authenticated()
+                    // Protected APIs
+                    .requestMatchers("/api/v1/admin/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/api/v1/**")
+                    .authenticated()
 
-                        // Everything else is the React SPA — public, auth enforced client-side
-                        .anyRequest().permitAll()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                    // Everything else is the React SPA — public, auth enforced client-side
+                    .anyRequest()
+                    .permitAll())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+    configuration.setAllowedMethods(
+        Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

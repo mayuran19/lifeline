@@ -7,6 +7,7 @@ package com.lifelinecalllog.jooq.tables;
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Keys;
 import com.lifelinecalllog.jooq.Public;
+import com.lifelinecalllog.jooq.enums.PatientStatus;
 import com.lifelinecalllog.jooq.tables.PatientClinic.PatientClinicPath;
 import com.lifelinecalllog.jooq.tables.Request.RequestPath;
 import com.lifelinecalllog.jooq.tables.RequestPatient.RequestPatientPath;
@@ -89,11 +90,6 @@ public class Patient extends TableImpl<PatientRecord> {
     public final TableField<PatientRecord, String> PHONE = createField(DSL.name("phone"), SQLDataType.VARCHAR(30), this, "");
 
     /**
-     * The column <code>public.patient.active</code>.
-     */
-    public final TableField<PatientRecord, Boolean> ACTIVE = createField(DSL.name("active"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "");
-
-    /**
      * The column <code>public.patient.created_date</code>.
      */
     public final TableField<PatientRecord, OffsetDateTime> CREATED_DATE = createField(DSL.name("created_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
@@ -117,6 +113,36 @@ public class Patient extends TableImpl<PatientRecord> {
      * The column <code>public.patient.version</code>.
      */
     public final TableField<PatientRecord, Integer> VERSION = createField(DSL.name("version"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("1"), SQLDataType.INTEGER)), this, "");
+
+    /**
+     * The column <code>public.patient.status</code>.
+     */
+    public final TableField<PatientRecord, PatientStatus> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR.nullable(false).defaultValue(DSL.field(DSL.raw("'ACTIVE'::patient_status"), SQLDataType.VARCHAR)).asEnumDataType(PatientStatus.class), this, "");
+
+    /**
+     * The column <code>public.patient.status_reason</code>.
+     */
+    public final TableField<PatientRecord, String> STATUS_REASON = createField(DSL.name("status_reason"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>public.patient.deceased_date</code>.
+     */
+    public final TableField<PatientRecord, LocalDate> DECEASED_DATE = createField(DSL.name("deceased_date"), SQLDataType.LOCALDATE, this, "");
+
+    /**
+     * The column <code>public.patient.medicare_no</code>.
+     */
+    public final TableField<PatientRecord, String> MEDICARE_NO = createField(DSL.name("medicare_no"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.patient.irn_no</code>.
+     */
+    public final TableField<PatientRecord, String> IRN_NO = createField(DSL.name("irn_no"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.patient.remark</code>.
+     */
+    public final TableField<PatientRecord, String> REMARK = createField(DSL.name("remark"), SQLDataType.CLOB, this, "");
 
     private Patient(Name alias, Table<PatientRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -187,7 +213,7 @@ public class Patient extends TableImpl<PatientRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.IDX_PATIENT_ACTIVE, Indexes.IDX_PATIENT_LAST_NAME);
+        return Arrays.asList(Indexes.IDX_PATIENT_LAST_NAME, Indexes.IDX_PATIENT_STATUS);
     }
 
     @Override

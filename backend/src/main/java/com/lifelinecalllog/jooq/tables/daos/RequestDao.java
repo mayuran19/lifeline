@@ -4,9 +4,6 @@
 package com.lifelinecalllog.jooq.tables.daos;
 
 
-import com.lifelinecalllog.jooq.enums.RequestStatus;
-import com.lifelinecalllog.jooq.enums.Urgency;
-import com.lifelinecalllog.jooq.enums.VisitType;
 import com.lifelinecalllog.jooq.tables.Request;
 import com.lifelinecalllog.jooq.tables.records.RequestRecord;
 
@@ -107,14 +104,14 @@ public class RequestDao extends DAOImpl<RequestRecord, com.lifelinecalllog.jooq.
      * Fetch records that have <code>visit_type BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfVisitType(VisitType lowerInclusive, VisitType upperInclusive) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfVisitType(String lowerInclusive, String upperInclusive) {
         return fetchRange(Request.REQUEST.VISIT_TYPE, lowerInclusive, upperInclusive);
     }
 
     /**
      * Fetch records that have <code>visit_type IN (values)</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByVisitType(VisitType... values) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByVisitType(String... values) {
         return fetch(Request.REQUEST.VISIT_TYPE, values);
     }
 
@@ -122,14 +119,14 @@ public class RequestDao extends DAOImpl<RequestRecord, com.lifelinecalllog.jooq.
      * Fetch records that have <code>urgency BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfUrgency(Urgency lowerInclusive, Urgency upperInclusive) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfUrgency(String lowerInclusive, String upperInclusive) {
         return fetchRange(Request.REQUEST.URGENCY, lowerInclusive, upperInclusive);
     }
 
     /**
      * Fetch records that have <code>urgency IN (values)</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByUrgency(Urgency... values) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByUrgency(String... values) {
         return fetch(Request.REQUEST.URGENCY, values);
     }
 
@@ -137,14 +134,14 @@ public class RequestDao extends DAOImpl<RequestRecord, com.lifelinecalllog.jooq.
      * Fetch records that have <code>status BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfStatus(RequestStatus lowerInclusive, RequestStatus upperInclusive) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfStatus(String lowerInclusive, String upperInclusive) {
         return fetchRange(Request.REQUEST.STATUS, lowerInclusive, upperInclusive);
     }
 
     /**
      * Fetch records that have <code>status IN (values)</code>
      */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByStatus(RequestStatus... values) {
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByStatus(String... values) {
         return fetch(Request.REQUEST.STATUS, values);
     }
 
@@ -281,5 +278,35 @@ public class RequestDao extends DAOImpl<RequestRecord, com.lifelinecalllog.jooq.
      */
     public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByEndTime(OffsetDateTime... values) {
         return fetch(Request.REQUEST.END_TIME, values);
+    }
+
+    /**
+     * Fetch records that have <code>clinic_location_id BETWEEN lowerInclusive
+     * AND upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfClinicLocationId(UUID lowerInclusive, UUID upperInclusive) {
+        return fetchRange(Request.REQUEST.CLINIC_LOCATION_ID, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>clinic_location_id IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByClinicLocationId(UUID... values) {
+        return fetch(Request.REQUEST.CLINIC_LOCATION_ID, values);
+    }
+
+    /**
+     * Fetch records that have <code>entered_by BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchRangeOfEnteredBy(UUID lowerInclusive, UUID upperInclusive) {
+        return fetchRange(Request.REQUEST.ENTERED_BY, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>entered_by IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.Request> fetchByEnteredBy(UUID... values) {
+        return fetch(Request.REQUEST.ENTERED_BY, values);
     }
 }

@@ -216,6 +216,36 @@ public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord> {
         return (Integer) get(12);
     }
 
+    /**
+     * Setter for <code>public.app_user.failed_login_attempts</code>.
+     */
+    public AppUserRecord setFailedLoginAttempts(Integer value) {
+        set(13, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.app_user.failed_login_attempts</code>.
+     */
+    public Integer getFailedLoginAttempts() {
+        return (Integer) get(13);
+    }
+
+    /**
+     * Setter for <code>public.app_user.locked_until</code>.
+     */
+    public AppUserRecord setLockedUntil(OffsetDateTime value) {
+        set(14, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.app_user.locked_until</code>.
+     */
+    public OffsetDateTime getLockedUntil() {
+        return (OffsetDateTime) get(14);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -239,7 +269,7 @@ public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord> {
     /**
      * Create a detached, initialised AppUserRecord
      */
-    public AppUserRecord(UUID id, String username, String email, String passwordHash, String firstName, String lastName, String role, Boolean enabled, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
+    public AppUserRecord(UUID id, String username, String email, String passwordHash, String firstName, String lastName, String role, Boolean enabled, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, Integer failedLoginAttempts, OffsetDateTime lockedUntil) {
         super(AppUser.APP_USER);
 
         setId(id);
@@ -255,6 +285,8 @@ public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord> {
         setLastModifiedDate(lastModifiedDate);
         setLastModifiedBy(lastModifiedBy);
         setVersion(version);
+        setFailedLoginAttempts(failedLoginAttempts);
+        setLockedUntil(lockedUntil);
         resetChangedOnNotNull();
     }
 
@@ -278,6 +310,8 @@ public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord> {
             setLastModifiedDate(value.getLastModifiedDate());
             setLastModifiedBy(value.getLastModifiedBy());
             setVersion(value.getVersion());
+            setFailedLoginAttempts(value.getFailedLoginAttempts());
+            setLockedUntil(value.getLockedUntil());
             resetChangedOnNotNull();
         }
     }

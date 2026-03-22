@@ -277,4 +277,34 @@ public class AppUserDao extends DAOImpl<AppUserRecord, com.lifelinecalllog.jooq.
     public List<com.lifelinecalllog.jooq.tables.pojos.AppUser> fetchByVersion(Integer... values) {
         return fetch(AppUser.APP_USER.VERSION, values);
     }
+
+    /**
+     * Fetch records that have <code>failed_login_attempts BETWEEN
+     * lowerInclusive AND upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.AppUser> fetchRangeOfFailedLoginAttempts(Integer lowerInclusive, Integer upperInclusive) {
+        return fetchRange(AppUser.APP_USER.FAILED_LOGIN_ATTEMPTS, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>failed_login_attempts IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.AppUser> fetchByFailedLoginAttempts(Integer... values) {
+        return fetch(AppUser.APP_USER.FAILED_LOGIN_ATTEMPTS, values);
+    }
+
+    /**
+     * Fetch records that have <code>locked_until BETWEEN lowerInclusive AND
+     * upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.AppUser> fetchRangeOfLockedUntil(OffsetDateTime lowerInclusive, OffsetDateTime upperInclusive) {
+        return fetchRange(AppUser.APP_USER.LOCKED_UNTIL, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>locked_until IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.AppUser> fetchByLockedUntil(OffsetDateTime... values) {
+        return fetch(AppUser.APP_USER.LOCKED_UNTIL, values);
+    }
 }

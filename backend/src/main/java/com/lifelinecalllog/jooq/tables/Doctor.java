@@ -7,6 +7,7 @@ package com.lifelinecalllog.jooq.tables;
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Keys;
 import com.lifelinecalllog.jooq.Public;
+import com.lifelinecalllog.jooq.tables.DoctorClinic.DoctorClinicPath;
 import com.lifelinecalllog.jooq.tables.Request.RequestPath;
 import com.lifelinecalllog.jooq.tables.records.DoctorRecord;
 
@@ -120,6 +121,11 @@ public class Doctor extends TableImpl<DoctorRecord> {
      */
     public final TableField<DoctorRecord, Integer> VERSION = createField(DSL.name("version"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("1"), SQLDataType.INTEGER)), this, "");
 
+    /**
+     * The column <code>public.doctor.prescriber_no</code>.
+     */
+    public final TableField<DoctorRecord, String> PRESCRIBER_NO = createField(DSL.name("prescriber_no"), SQLDataType.VARCHAR(50), this, "");
+
     private Doctor(Name alias, Table<DoctorRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }
@@ -195,6 +201,19 @@ public class Doctor extends TableImpl<DoctorRecord> {
     @Override
     public UniqueKey<DoctorRecord> getPrimaryKey() {
         return Keys.DOCTOR_PKEY;
+    }
+
+    private transient DoctorClinicPath _doctorClinic;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.doctor_clinic</code> table
+     */
+    public DoctorClinicPath doctorClinic() {
+        if (_doctorClinic == null)
+            _doctorClinic = new DoctorClinicPath(this, null, Keys.DOCTOR_CLINIC__FK_DOCTOR_CLINIC_DOCTOR.getInverseKey());
+
+        return _doctorClinic;
     }
 
     private transient RequestPath _request;

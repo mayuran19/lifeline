@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.4</version>
         <relativePath/>
     </parent>
 
@@ -25,10 +25,25 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jooq.version>3.19.28</jooq.version>
         <jjwt.version>0.12.6</jjwt.version>
-        <testcontainers.version>2.0.2</testcontainers.version>
-        <liquibase.version>4.30.0</liquibase.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
+        <liquibase.version>4.32.0</liquibase.version>
+        <!-- 4.32.0 has a Snowflake/BouncyCastle classloading bug in the Maven plugin,
+             use last known working version for jOOQ codegen only -->
+        <liquibase.codegen.version>4.31.1</liquibase.codegen.version>
+        <postgresql.version>42.7.7</postgresql.version>
         <frontend.build.skip>false</frontend.build.skip>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Override Spring Boot managed PostgreSQL driver to fix CVE-2025-49146 -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Spring Boot Starters -->
@@ -83,6 +98,20 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Email via Resend -->
+        <dependency>
+            <groupId>com.resend</groupId>
+            <artifactId>resend-java</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <!-- .env file support for local development -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
         <!-- Utilities -->
@@ -143,7 +172,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.15.0</version>
+                <version>1.15.1</version>
                 <configuration>
                     <workingDirectory>../frontend</workingDirectory>
                     <skip>${frontend.build.skip}</skip>
@@ -208,11 +237,40 @@
                 </executions>
             </plugin>
 
+            <!-- Code Formatter -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <java>
+                        <excludes>
+                            <exclude>src/main/java/com/lifelinecalllog/jooq/**</exclude>
+                        </excludes>
+                        <googleJavaFormat>
+                            <version>1.27.0</version>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
+                        <removeUnusedImports/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Liquibase Plugin -->
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>4.29.2</version>
+                <version>${liquibase.version}</version>
                 <configuration>
                     <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
                 </configuration>
@@ -275,7 +333,7 @@
                     <plugin>
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>${liquibase.version}</version>
+                        <version>${liquibase.codegen.version}</version>
                         <executions>
                             <execution>
                                 <id>generate-database-schema</id>
@@ -298,12 +356,12 @@
                             <dependency>
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
-                                <version>42.7.4</version>
+                                <version>${postgresql.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>org.liquibase</groupId>
                                 <artifactId>liquibase-core</artifactId>
-                                <version>${liquibase.version}</version>
+                                <version>${liquibase.codegen.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -355,7 +413,7 @@
                             <dependency>
                                 <groupId>org.postgresql</groupId>
                                 <artifactId>postgresql</artifactId>
-                                <version>42.7.4</version>
+                                <version>${postgresql.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>org.jooq</groupId>

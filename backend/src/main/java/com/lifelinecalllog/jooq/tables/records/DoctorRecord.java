@@ -201,6 +201,21 @@ public class DoctorRecord extends UpdatableRecordImpl<DoctorRecord> {
         return (Integer) get(11);
     }
 
+    /**
+     * Setter for <code>public.doctor.prescriber_no</code>.
+     */
+    public DoctorRecord setPrescriberNo(String value) {
+        set(12, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.doctor.prescriber_no</code>.
+     */
+    public String getPrescriberNo() {
+        return (String) get(12);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -224,7 +239,7 @@ public class DoctorRecord extends UpdatableRecordImpl<DoctorRecord> {
     /**
      * Create a detached, initialised DoctorRecord
      */
-    public DoctorRecord(UUID id, String firstName, String lastName, String providerNumber, String phone, String email, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
+    public DoctorRecord(UUID id, String firstName, String lastName, String providerNumber, String phone, String email, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String prescriberNo) {
         super(Doctor.DOCTOR);
 
         setId(id);
@@ -239,6 +254,7 @@ public class DoctorRecord extends UpdatableRecordImpl<DoctorRecord> {
         setLastModifiedDate(lastModifiedDate);
         setLastModifiedBy(lastModifiedBy);
         setVersion(version);
+        setPrescriberNo(prescriberNo);
         resetChangedOnNotNull();
     }
 
@@ -261,6 +277,7 @@ public class DoctorRecord extends UpdatableRecordImpl<DoctorRecord> {
             setLastModifiedDate(value.getLastModifiedDate());
             setLastModifiedBy(value.getLastModifiedBy());
             setVersion(value.getVersion());
+            setPrescriberNo(value.getPrescriberNo());
             resetChangedOnNotNull();
         }
     }

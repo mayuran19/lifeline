@@ -6,6 +6,7 @@ package com.lifelinecalllog.jooq.tables;
 
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Public;
+import com.lifelinecalllog.jooq.enums.PatientStatus;
 import com.lifelinecalllog.jooq.tables.records.PatientHistoryRecord;
 
 import java.time.LocalDate;
@@ -80,11 +81,6 @@ public class PatientHistory extends TableImpl<PatientHistoryRecord> {
     public final TableField<PatientHistoryRecord, String> PHONE = createField(DSL.name("phone"), SQLDataType.VARCHAR(30), this, "");
 
     /**
-     * The column <code>public.patient_history.active</code>.
-     */
-    public final TableField<PatientHistoryRecord, Boolean> ACTIVE = createField(DSL.name("active"), SQLDataType.BOOLEAN, this, "");
-
-    /**
      * The column <code>public.patient_history.created_date</code>.
      */
     public final TableField<PatientHistoryRecord, OffsetDateTime> CREATED_DATE = createField(DSL.name("created_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "");
@@ -118,6 +114,36 @@ public class PatientHistory extends TableImpl<PatientHistoryRecord> {
      * The column <code>public.patient_history.history_created_date</code>.
      */
     public final TableField<PatientHistoryRecord, OffsetDateTime> HISTORY_CREATED_DATE = createField(DSL.name("history_created_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
+
+    /**
+     * The column <code>public.patient_history.status</code>.
+     */
+    public final TableField<PatientHistoryRecord, PatientStatus> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR.asEnumDataType(PatientStatus.class), this, "");
+
+    /**
+     * The column <code>public.patient_history.status_reason</code>.
+     */
+    public final TableField<PatientHistoryRecord, String> STATUS_REASON = createField(DSL.name("status_reason"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>public.patient_history.deceased_date</code>.
+     */
+    public final TableField<PatientHistoryRecord, LocalDate> DECEASED_DATE = createField(DSL.name("deceased_date"), SQLDataType.LOCALDATE, this, "");
+
+    /**
+     * The column <code>public.patient_history.medicare_no</code>.
+     */
+    public final TableField<PatientHistoryRecord, String> MEDICARE_NO = createField(DSL.name("medicare_no"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.patient_history.irn_no</code>.
+     */
+    public final TableField<PatientHistoryRecord, String> IRN_NO = createField(DSL.name("irn_no"), SQLDataType.VARCHAR(50), this, "");
+
+    /**
+     * The column <code>public.patient_history.remark</code>.
+     */
+    public final TableField<PatientHistoryRecord, String> REMARK = createField(DSL.name("remark"), SQLDataType.CLOB, this, "");
 
     private PatientHistory(Name alias, Table<PatientHistoryRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);

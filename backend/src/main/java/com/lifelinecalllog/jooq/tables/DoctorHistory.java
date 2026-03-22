@@ -123,6 +123,11 @@ public class DoctorHistory extends TableImpl<DoctorHistoryRecord> {
      */
     public final TableField<DoctorHistoryRecord, OffsetDateTime> HISTORY_CREATED_DATE = createField(DSL.name("history_created_date"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.TIMESTAMPWITHTIMEZONE)), this, "");
 
+    /**
+     * The column <code>public.doctor_history.prescriber_no</code>.
+     */
+    public final TableField<DoctorHistoryRecord, String> PRESCRIBER_NO = createField(DSL.name("prescriber_no"), SQLDataType.VARCHAR(50), this, "");
+
     private DoctorHistory(Name alias, Table<DoctorHistoryRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

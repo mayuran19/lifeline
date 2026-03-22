@@ -1,94 +1,173 @@
 package com.lifelinecalllog.service;
 
+import static com.lifelinecalllog.jooq.Tables.*;
+
 import com.lifelinecalllog.dto.PatientRequest;
 import com.lifelinecalllog.dto.PatientResponse;
+import com.lifelinecalllog.jooq.enums.PatientStatus;
+import java.util.List;
+import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-
-import static com.lifelinecalllog.jooq.Tables.PATIENT;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PatientService {
 
-    private final DSLContext dsl;
+  private final DSLContext dsl;
 
-    public PatientService(DSLContext dsl) {
-        this.dsl = dsl;
+  public PatientService(DSLContext dsl) {
+    this.dsl = dsl;
+  }
+
+  public List<PatientResponse> findAll(boolean activeOnly, String search) {
+    Condition condition = DSL.trueCondition();
+    if (activeOnly) condition = condition.and(PATIENT.STATUS.eq(PatientStatus.ACTIVE));
+    if (search != null && !search.isBlank()) {
+      String pattern = "%" + search.toLowerCase() + "%";
+      condition =
+          condition.and(
+              PATIENT.FIRST_NAME.lower().like(pattern).or(PATIENT.LAST_NAME.lower().like(pattern)));
     }
+    return dsl.selectFrom(PATIENT)
+        .where(condition)
+        .orderBy(PATIENT.LAST_NAME, PATIENT.FIRST_NAME)
+        .fetch(r -> toResponse(r.getId()));
+  }
 
-    public List<PatientResponse> findAll(boolean activeOnly, String search) {
-        Condition condition = DSL.trueCondition();
-        if (activeOnly) condition = condition.and(PATIENT.ACTIVE.isTrue());
-        if (search != null && !search.isBlank()) {
-            String pattern = "%" + search.toLowerCase() + "%";
-            condition = condition.and(
-                    PATIENT.FIRST_NAME.lower().like(pattern)
-                            .or(PATIENT.LAST_NAME.lower().like(pattern))
-            );
+  public PatientResponse findById(UUID id) {
+    if (!dsl.fetchExists(dsl.selectFrom(PATIENT).where(PATIENT.ID.eq(id)))) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
+    }
+    return toResponse(id);
+  }
+
+  @Transactional
+  public PatientResponse create(PatientRequest req) {
+    var record = dsl.newRecord(PATIENT);
+    mapFields(record, req);
+    record.setStatus(PatientStatus.ACTIVE);
+    record.store();
+    saveClinicAssociation(record.getId(), req.clinicId(), req.clinicLocationId());
+    return toResponse(record.getId());
+  }
+
+  @Transactional
+  public PatientResponse update(UUID id, PatientRequest req) {
+    var record =
+        dsl.selectFrom(PATIENT)
+            .where(PATIENT.ID.eq(id))
+            .fetchOptional()
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+    mapFields(record, req);
+    record.store();
+
+    // Replace current clinic association
+    dsl.update(PATIENT_CLINIC)
+        .set(PATIENT_CLINIC.IS_CURRENT, false)
+        .where(PATIENT_CLINIC.PATIENT_ID.eq(id).and(PATIENT_CLINIC.IS_CURRENT.isTrue()))
+        .execute();
+    saveClinicAssociation(id, req.clinicId(), req.clinicLocationId());
+
+    return toResponse(id);
+  }
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  private void mapFields(
+      com.lifelinecalllog.jooq.tables.records.PatientRecord record, PatientRequest req) {
+    record.setFirstName(req.firstName());
+    record.setLastName(req.lastName());
+    record.setDateOfBirth(req.dateOfBirth());
+    record.setPhone(req.phone());
+    record.setMedicareNo(req.medicareNo());
+    record.setIrnNo(req.irnNo());
+    record.setRemark(req.remark());
+    record.setStatusReason(req.statusReason());
+    record.setDeceasedDate(req.deceasedDate());
+    if (req.status() != null) {
+      record.setStatus(PatientStatus.valueOf(req.status()));
+    }
+  }
+
+  private void saveClinicAssociation(UUID patientId, UUID clinicId, UUID clinicLocationId) {
+    if (clinicId == null) return;
+    var assoc = dsl.newRecord(PATIENT_CLINIC);
+    assoc.setPatientId(patientId);
+    assoc.setClinicId(clinicId);
+    assoc.setClinicLocationId(clinicLocationId);
+    assoc.setIsCurrent(true);
+    assoc.store();
+  }
+
+  private PatientResponse toResponse(UUID patientId) {
+    var p = dsl.selectFrom(PATIENT).where(PATIENT.ID.eq(patientId)).fetchOne();
+    if (p == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
+
+    var assoc =
+        dsl.selectFrom(PATIENT_CLINIC)
+            .where(PATIENT_CLINIC.PATIENT_ID.eq(patientId).and(PATIENT_CLINIC.IS_CURRENT.isTrue()))
+            .orderBy(PATIENT_CLINIC.CREATED_DATE.desc())
+            .limit(1)
+            .fetchOne();
+
+    UUID clinicId = null;
+    String clinicName = null;
+    UUID clinicLocationId = null;
+    String clinicLocationName = null;
+    String clinicLocationAddress = null;
+
+    if (assoc != null) {
+      clinicId = assoc.getClinicId();
+      var clinic = dsl.selectFrom(CLINIC).where(CLINIC.ID.eq(clinicId)).fetchOne();
+      if (clinic != null) clinicName = clinic.getName();
+
+      clinicLocationId = assoc.getClinicLocationId();
+      if (clinicLocationId != null) {
+        var loc =
+            dsl.selectFrom(CLINIC_LOCATION)
+                .where(CLINIC_LOCATION.ID.eq(clinicLocationId))
+                .fetchOne();
+        if (loc != null) {
+          clinicLocationName = loc.getName();
+          clinicLocationAddress =
+              loc.getFormattedAddress() != null
+                  ? loc.getFormattedAddress()
+                  : String.join(", ", nonNull(loc.getSuburb(), loc.getState(), loc.getPostcode()));
         }
-        return dsl.selectFrom(PATIENT)
-                .where(condition)
-                .orderBy(PATIENT.LAST_NAME, PATIENT.FIRST_NAME)
-                .fetch(this::toResponse);
+      }
     }
 
-    public PatientResponse findById(UUID id) {
-        return dsl.selectFrom(PATIENT)
-                .where(PATIENT.ID.eq(id))
-                .fetchOptional(this::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Patient not found: " + id));
-    }
+    return new PatientResponse(
+        p.getId(),
+        p.getFirstName(),
+        p.getLastName(),
+        p.getDateOfBirth(),
+        p.getPhone(),
+        p.getMedicareNo(),
+        p.getIrnNo(),
+        p.getRemark(),
+        p.getStatus() != null ? p.getStatus().getLiteral() : "ACTIVE",
+        p.getStatusReason(),
+        p.getDeceasedDate(),
+        clinicId,
+        clinicName,
+        clinicLocationId,
+        clinicLocationName,
+        clinicLocationAddress,
+        p.getCreatedDate(),
+        p.getCreatedBy(),
+        p.getLastModifiedDate(),
+        p.getLastModifiedBy(),
+        p.getVersion());
+  }
 
-    public PatientResponse create(PatientRequest req) {
-        var record = dsl.newRecord(PATIENT);
-        record.setFirstName(req.firstName());
-        record.setLastName(req.lastName());
-        record.setDateOfBirth(req.dateOfBirth());
-        record.setPhone(req.phone());
-        record.setActive(true);
-        record.store();
-        return findById(record.getId());
-    }
-
-    public PatientResponse update(UUID id, PatientRequest req) {
-        var record = dsl.selectFrom(PATIENT)
-                .where(PATIENT.ID.eq(id))
-                .fetchOptional()
-                .orElseThrow(() -> new IllegalArgumentException("Patient not found: " + id));
-        record.setFirstName(req.firstName());
-        record.setLastName(req.lastName());
-        record.setDateOfBirth(req.dateOfBirth());
-        record.setPhone(req.phone());
-        record.store();
-        return findById(record.getId());
-    }
-
-    public void deactivate(UUID id) {
-        int updated = dsl.update(PATIENT)
-                .set(PATIENT.ACTIVE, false)
-                .where(PATIENT.ID.eq(id))
-                .execute();
-        if (updated == 0) throw new IllegalArgumentException("Patient not found: " + id);
-    }
-
-    private PatientResponse toResponse(org.jooq.Record r) {
-        return new PatientResponse(
-                r.get(PATIENT.ID),
-                r.get(PATIENT.FIRST_NAME),
-                r.get(PATIENT.LAST_NAME),
-                r.get(PATIENT.DATE_OF_BIRTH),
-                r.get(PATIENT.PHONE),
-                r.get(PATIENT.ACTIVE),
-                r.get(PATIENT.CREATED_DATE),
-                r.get(PATIENT.CREATED_BY),
-                r.get(PATIENT.LAST_MODIFIED_DATE),
-                r.get(PATIENT.LAST_MODIFIED_BY),
-                r.get(PATIENT.VERSION)
-        );
-    }
+  private List<String> nonNull(String... values) {
+    return java.util.Arrays.stream(values).filter(v -> v != null && !v.isBlank()).toList();
+  }
 }

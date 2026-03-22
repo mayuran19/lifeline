@@ -64,11 +64,6 @@ public class ClinicHistory extends TableImpl<ClinicHistoryRecord> {
     public final TableField<ClinicHistoryRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(200), this, "");
 
     /**
-     * The column <code>public.clinic_history.address</code>.
-     */
-    public final TableField<ClinicHistoryRecord, String> ADDRESS = createField(DSL.name("address"), SQLDataType.VARCHAR(500), this, "");
-
-    /**
      * The column <code>public.clinic_history.phone</code>.
      */
     public final TableField<ClinicHistoryRecord, String> PHONE = createField(DSL.name("phone"), SQLDataType.VARCHAR(30), this, "");
@@ -77,11 +72,6 @@ public class ClinicHistory extends TableImpl<ClinicHistoryRecord> {
      * The column <code>public.clinic_history.fax</code>.
      */
     public final TableField<ClinicHistoryRecord, String> FAX = createField(DSL.name("fax"), SQLDataType.VARCHAR(30), this, "");
-
-    /**
-     * The column <code>public.clinic_history.email</code>.
-     */
-    public final TableField<ClinicHistoryRecord, String> EMAIL = createField(DSL.name("email"), SQLDataType.VARCHAR(100), this, "");
 
     /**
      * The column <code>public.clinic_history.active</code>.

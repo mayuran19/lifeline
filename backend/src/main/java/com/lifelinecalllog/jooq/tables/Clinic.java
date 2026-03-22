@@ -7,6 +7,9 @@ package com.lifelinecalllog.jooq.tables;
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Keys;
 import com.lifelinecalllog.jooq.Public;
+import com.lifelinecalllog.jooq.tables.ClinicEmail.ClinicEmailPath;
+import com.lifelinecalllog.jooq.tables.ClinicLocation.ClinicLocationPath;
+import com.lifelinecalllog.jooq.tables.DoctorClinic.DoctorClinicPath;
 import com.lifelinecalllog.jooq.tables.PatientClinic.PatientClinicPath;
 import com.lifelinecalllog.jooq.tables.Request.RequestPath;
 import com.lifelinecalllog.jooq.tables.records.ClinicRecord;
@@ -72,11 +75,6 @@ public class Clinic extends TableImpl<ClinicRecord> {
     public final TableField<ClinicRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(200).nullable(false), this, "");
 
     /**
-     * The column <code>public.clinic.address</code>.
-     */
-    public final TableField<ClinicRecord, String> ADDRESS = createField(DSL.name("address"), SQLDataType.VARCHAR(500), this, "");
-
-    /**
      * The column <code>public.clinic.phone</code>.
      */
     public final TableField<ClinicRecord, String> PHONE = createField(DSL.name("phone"), SQLDataType.VARCHAR(30), this, "");
@@ -85,11 +83,6 @@ public class Clinic extends TableImpl<ClinicRecord> {
      * The column <code>public.clinic.fax</code>.
      */
     public final TableField<ClinicRecord, String> FAX = createField(DSL.name("fax"), SQLDataType.VARCHAR(30), this, "");
-
-    /**
-     * The column <code>public.clinic.email</code>.
-     */
-    public final TableField<ClinicRecord, String> EMAIL = createField(DSL.name("email"), SQLDataType.VARCHAR(100), this, "");
 
     /**
      * The column <code>public.clinic.active</code>.
@@ -196,6 +189,45 @@ public class Clinic extends TableImpl<ClinicRecord> {
     @Override
     public UniqueKey<ClinicRecord> getPrimaryKey() {
         return Keys.CLINIC_PKEY;
+    }
+
+    private transient ClinicEmailPath _clinicEmail;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.clinic_email</code> table
+     */
+    public ClinicEmailPath clinicEmail() {
+        if (_clinicEmail == null)
+            _clinicEmail = new ClinicEmailPath(this, null, Keys.CLINIC_EMAIL__FK_CLINIC_EMAIL_CLINIC.getInverseKey());
+
+        return _clinicEmail;
+    }
+
+    private transient ClinicLocationPath _clinicLocation;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.clinic_location</code> table
+     */
+    public ClinicLocationPath clinicLocation() {
+        if (_clinicLocation == null)
+            _clinicLocation = new ClinicLocationPath(this, null, Keys.CLINIC_LOCATION__FK_CLINIC_LOCATION_CLINIC.getInverseKey());
+
+        return _clinicLocation;
+    }
+
+    private transient DoctorClinicPath _doctorClinic;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.doctor_clinic</code> table
+     */
+    public DoctorClinicPath doctorClinic() {
+        if (_doctorClinic == null)
+            _doctorClinic = new DoctorClinicPath(this, null, Keys.DOCTOR_CLINIC__FK_DOCTOR_CLINIC_CLINIC.getInverseKey());
+
+        return _doctorClinic;
     }
 
     private transient PatientClinicPath _patientClinic;

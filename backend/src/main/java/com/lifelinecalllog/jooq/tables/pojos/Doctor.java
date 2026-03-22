@@ -29,6 +29,7 @@ public class Doctor implements Serializable {
     private OffsetDateTime lastModifiedDate;
     private UUID lastModifiedBy;
     private Integer version;
+    private String prescriberNo;
 
     public Doctor() {}
 
@@ -45,6 +46,7 @@ public class Doctor implements Serializable {
         this.lastModifiedDate = value.lastModifiedDate;
         this.lastModifiedBy = value.lastModifiedBy;
         this.version = value.version;
+        this.prescriberNo = value.prescriberNo;
     }
 
     public Doctor(
@@ -59,7 +61,8 @@ public class Doctor implements Serializable {
         UUID createdBy,
         OffsetDateTime lastModifiedDate,
         UUID lastModifiedBy,
-        Integer version
+        Integer version,
+        String prescriberNo
     ) {
         this.id = id;
         this.firstName = firstName;
@@ -73,6 +76,7 @@ public class Doctor implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
         this.lastModifiedBy = lastModifiedBy;
         this.version = version;
+        this.prescriberNo = prescriberNo;
     }
 
     /**
@@ -255,6 +259,21 @@ public class Doctor implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.doctor.prescriber_no</code>.
+     */
+    public String getPrescriberNo() {
+        return this.prescriberNo;
+    }
+
+    /**
+     * Setter for <code>public.doctor.prescriber_no</code>.
+     */
+    public Doctor setPrescriberNo(String prescriberNo) {
+        this.prescriberNo = prescriberNo;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -336,6 +355,12 @@ public class Doctor implements Serializable {
         }
         else if (!this.version.equals(other.version))
             return false;
+        if (this.prescriberNo == null) {
+            if (other.prescriberNo != null)
+                return false;
+        }
+        else if (!this.prescriberNo.equals(other.prescriberNo))
+            return false;
         return true;
     }
 
@@ -355,6 +380,7 @@ public class Doctor implements Serializable {
         result = prime * result + ((this.lastModifiedDate == null) ? 0 : this.lastModifiedDate.hashCode());
         result = prime * result + ((this.lastModifiedBy == null) ? 0 : this.lastModifiedBy.hashCode());
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
+        result = prime * result + ((this.prescriberNo == null) ? 0 : this.prescriberNo.hashCode());
         return result;
     }
 
@@ -374,6 +400,7 @@ public class Doctor implements Serializable {
         sb.append(", ").append(lastModifiedDate);
         sb.append(", ").append(lastModifiedBy);
         sb.append(", ").append(version);
+        sb.append(", ").append(prescriberNo);
 
         sb.append(")");
         return sb.toString();

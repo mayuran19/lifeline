@@ -6,15 +6,27 @@ package com.lifelinecalllog.jooq;
 
 import com.lifelinecalllog.jooq.tables.AppUser;
 import com.lifelinecalllog.jooq.tables.Clinic;
+import com.lifelinecalllog.jooq.tables.ClinicEmail;
+import com.lifelinecalllog.jooq.tables.ClinicLocation;
+import com.lifelinecalllog.jooq.tables.ClinicLocationEmail;
+import com.lifelinecalllog.jooq.tables.Configuration;
 import com.lifelinecalllog.jooq.tables.Doctor;
+import com.lifelinecalllog.jooq.tables.DoctorClinic;
+import com.lifelinecalllog.jooq.tables.PasswordResetToken;
 import com.lifelinecalllog.jooq.tables.Patient;
 import com.lifelinecalllog.jooq.tables.PatientClinic;
 import com.lifelinecalllog.jooq.tables.RefreshToken;
 import com.lifelinecalllog.jooq.tables.Request;
 import com.lifelinecalllog.jooq.tables.RequestPatient;
 import com.lifelinecalllog.jooq.tables.records.AppUserRecord;
+import com.lifelinecalllog.jooq.tables.records.ClinicEmailRecord;
+import com.lifelinecalllog.jooq.tables.records.ClinicLocationEmailRecord;
+import com.lifelinecalllog.jooq.tables.records.ClinicLocationRecord;
 import com.lifelinecalllog.jooq.tables.records.ClinicRecord;
+import com.lifelinecalllog.jooq.tables.records.ConfigurationRecord;
+import com.lifelinecalllog.jooq.tables.records.DoctorClinicRecord;
 import com.lifelinecalllog.jooq.tables.records.DoctorRecord;
+import com.lifelinecalllog.jooq.tables.records.PasswordResetTokenRecord;
 import com.lifelinecalllog.jooq.tables.records.PatientClinicRecord;
 import com.lifelinecalllog.jooq.tables.records.PatientRecord;
 import com.lifelinecalllog.jooq.tables.records.RefreshTokenRecord;
@@ -42,8 +54,17 @@ public class Keys {
     public static final UniqueKey<AppUserRecord> APP_USER_EMAIL_KEY = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("app_user_email_key"), new TableField[] { AppUser.APP_USER.EMAIL }, true);
     public static final UniqueKey<AppUserRecord> APP_USER_PKEY = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("app_user_pkey"), new TableField[] { AppUser.APP_USER.ID }, true);
     public static final UniqueKey<AppUserRecord> APP_USER_USERNAME_KEY = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("app_user_username_key"), new TableField[] { AppUser.APP_USER.USERNAME }, true);
+    public static final UniqueKey<AppUserRecord> UQ_APP_USER_EMAIL = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("uq_app_user_email"), new TableField[] { AppUser.APP_USER.EMAIL }, true);
     public static final UniqueKey<ClinicRecord> CLINIC_PKEY = Internal.createUniqueKey(Clinic.CLINIC, DSL.name("clinic_pkey"), new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final UniqueKey<ClinicEmailRecord> CLINIC_EMAIL_PKEY = Internal.createUniqueKey(ClinicEmail.CLINIC_EMAIL, DSL.name("clinic_email_pkey"), new TableField[] { ClinicEmail.CLINIC_EMAIL.ID }, true);
+    public static final UniqueKey<ClinicLocationRecord> CLINIC_LOCATION_PKEY = Internal.createUniqueKey(ClinicLocation.CLINIC_LOCATION, DSL.name("clinic_location_pkey"), new TableField[] { ClinicLocation.CLINIC_LOCATION.ID }, true);
+    public static final UniqueKey<ClinicLocationEmailRecord> CLINIC_LOCATION_EMAIL_PKEY = Internal.createUniqueKey(ClinicLocationEmail.CLINIC_LOCATION_EMAIL, DSL.name("clinic_location_email_pkey"), new TableField[] { ClinicLocationEmail.CLINIC_LOCATION_EMAIL.ID }, true);
+    public static final UniqueKey<ConfigurationRecord> CONFIGURATION_PKEY = Internal.createUniqueKey(Configuration.CONFIGURATION, DSL.name("configuration_pkey"), new TableField[] { Configuration.CONFIGURATION.CONFIG_GROUP, Configuration.CONFIGURATION.CONFIG_KEY }, true);
+    public static final UniqueKey<ConfigurationRecord> UQ_CONFIGURATION_GROUP_KEY = Internal.createUniqueKey(Configuration.CONFIGURATION, DSL.name("uq_configuration_group_key"), new TableField[] { Configuration.CONFIGURATION.CONFIG_GROUP, Configuration.CONFIGURATION.CONFIG_KEY }, true);
     public static final UniqueKey<DoctorRecord> DOCTOR_PKEY = Internal.createUniqueKey(Doctor.DOCTOR, DSL.name("doctor_pkey"), new TableField[] { Doctor.DOCTOR.ID }, true);
+    public static final UniqueKey<DoctorClinicRecord> DOCTOR_CLINIC_PKEY = Internal.createUniqueKey(DoctorClinic.DOCTOR_CLINIC, DSL.name("doctor_clinic_pkey"), new TableField[] { DoctorClinic.DOCTOR_CLINIC.ID }, true);
+    public static final UniqueKey<DoctorClinicRecord> UQ_DOCTOR_CLINIC_LOCATION = Internal.createUniqueKey(DoctorClinic.DOCTOR_CLINIC, DSL.name("uq_doctor_clinic_location"), new TableField[] { DoctorClinic.DOCTOR_CLINIC.DOCTOR_ID, DoctorClinic.DOCTOR_CLINIC.CLINIC_ID, DoctorClinic.DOCTOR_CLINIC.CLINIC_LOCATION_ID }, true);
+    public static final UniqueKey<PasswordResetTokenRecord> PASSWORD_RESET_TOKEN_PKEY = Internal.createUniqueKey(PasswordResetToken.PASSWORD_RESET_TOKEN, DSL.name("password_reset_token_pkey"), new TableField[] { PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN }, true);
     public static final UniqueKey<PatientRecord> PATIENT_PKEY = Internal.createUniqueKey(Patient.PATIENT, DSL.name("patient_pkey"), new TableField[] { Patient.PATIENT.ID }, true);
     public static final UniqueKey<PatientClinicRecord> PATIENT_CLINIC_PKEY = Internal.createUniqueKey(PatientClinic.PATIENT_CLINIC, DSL.name("patient_clinic_pkey"), new TableField[] { PatientClinic.PATIENT_CLINIC.ID }, true);
     public static final UniqueKey<RefreshTokenRecord> REFRESH_TOKEN_PKEY = Internal.createUniqueKey(RefreshToken.REFRESH_TOKEN, DSL.name("refresh_token_pkey"), new TableField[] { RefreshToken.REFRESH_TOKEN.ID }, true);
@@ -56,11 +77,21 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final ForeignKey<ClinicEmailRecord, ClinicRecord> CLINIC_EMAIL__FK_CLINIC_EMAIL_CLINIC = Internal.createForeignKey(ClinicEmail.CLINIC_EMAIL, DSL.name("fk_clinic_email_clinic"), new TableField[] { ClinicEmail.CLINIC_EMAIL.CLINIC_ID }, Keys.CLINIC_PKEY, new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final ForeignKey<ClinicLocationRecord, ClinicRecord> CLINIC_LOCATION__FK_CLINIC_LOCATION_CLINIC = Internal.createForeignKey(ClinicLocation.CLINIC_LOCATION, DSL.name("fk_clinic_location_clinic"), new TableField[] { ClinicLocation.CLINIC_LOCATION.CLINIC_ID }, Keys.CLINIC_PKEY, new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final ForeignKey<ClinicLocationEmailRecord, ClinicLocationRecord> CLINIC_LOCATION_EMAIL__FK_CLINIC_LOCATION_EMAIL_LOCATION = Internal.createForeignKey(ClinicLocationEmail.CLINIC_LOCATION_EMAIL, DSL.name("fk_clinic_location_email_location"), new TableField[] { ClinicLocationEmail.CLINIC_LOCATION_EMAIL.CLINIC_LOCATION_ID }, Keys.CLINIC_LOCATION_PKEY, new TableField[] { ClinicLocation.CLINIC_LOCATION.ID }, true);
+    public static final ForeignKey<DoctorClinicRecord, ClinicRecord> DOCTOR_CLINIC__FK_DOCTOR_CLINIC_CLINIC = Internal.createForeignKey(DoctorClinic.DOCTOR_CLINIC, DSL.name("fk_doctor_clinic_clinic"), new TableField[] { DoctorClinic.DOCTOR_CLINIC.CLINIC_ID }, Keys.CLINIC_PKEY, new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final ForeignKey<DoctorClinicRecord, DoctorRecord> DOCTOR_CLINIC__FK_DOCTOR_CLINIC_DOCTOR = Internal.createForeignKey(DoctorClinic.DOCTOR_CLINIC, DSL.name("fk_doctor_clinic_doctor"), new TableField[] { DoctorClinic.DOCTOR_CLINIC.DOCTOR_ID }, Keys.DOCTOR_PKEY, new TableField[] { Doctor.DOCTOR.ID }, true);
+    public static final ForeignKey<DoctorClinicRecord, ClinicLocationRecord> DOCTOR_CLINIC__FK_DOCTOR_CLINIC_LOCATION = Internal.createForeignKey(DoctorClinic.DOCTOR_CLINIC, DSL.name("fk_doctor_clinic_location"), new TableField[] { DoctorClinic.DOCTOR_CLINIC.CLINIC_LOCATION_ID }, Keys.CLINIC_LOCATION_PKEY, new TableField[] { ClinicLocation.CLINIC_LOCATION.ID }, true);
+    public static final ForeignKey<PasswordResetTokenRecord, AppUserRecord> PASSWORD_RESET_TOKEN__PASSWORD_RESET_TOKEN_USER_ID_FKEY = Internal.createForeignKey(PasswordResetToken.PASSWORD_RESET_TOKEN, DSL.name("password_reset_token_user_id_fkey"), new TableField[] { PasswordResetToken.PASSWORD_RESET_TOKEN.USER_ID }, Keys.APP_USER_PKEY, new TableField[] { AppUser.APP_USER.ID }, true);
     public static final ForeignKey<PatientClinicRecord, ClinicRecord> PATIENT_CLINIC__FK_PATIENT_CLINIC_CLINIC = Internal.createForeignKey(PatientClinic.PATIENT_CLINIC, DSL.name("fk_patient_clinic_clinic"), new TableField[] { PatientClinic.PATIENT_CLINIC.CLINIC_ID }, Keys.CLINIC_PKEY, new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final ForeignKey<PatientClinicRecord, ClinicLocationRecord> PATIENT_CLINIC__FK_PATIENT_CLINIC_LOCATION = Internal.createForeignKey(PatientClinic.PATIENT_CLINIC, DSL.name("fk_patient_clinic_location"), new TableField[] { PatientClinic.PATIENT_CLINIC.CLINIC_LOCATION_ID }, Keys.CLINIC_LOCATION_PKEY, new TableField[] { ClinicLocation.CLINIC_LOCATION.ID }, true);
     public static final ForeignKey<PatientClinicRecord, PatientRecord> PATIENT_CLINIC__FK_PATIENT_CLINIC_PATIENT = Internal.createForeignKey(PatientClinic.PATIENT_CLINIC, DSL.name("fk_patient_clinic_patient"), new TableField[] { PatientClinic.PATIENT_CLINIC.PATIENT_ID }, Keys.PATIENT_PKEY, new TableField[] { Patient.PATIENT.ID }, true);
     public static final ForeignKey<RefreshTokenRecord, AppUserRecord> REFRESH_TOKEN__FK_REFRESH_TOKEN_USER = Internal.createForeignKey(RefreshToken.REFRESH_TOKEN, DSL.name("fk_refresh_token_user"), new TableField[] { RefreshToken.REFRESH_TOKEN.USER_ID }, Keys.APP_USER_PKEY, new TableField[] { AppUser.APP_USER.ID }, true);
     public static final ForeignKey<RequestRecord, ClinicRecord> REQUEST__FK_REQUEST_CLINIC = Internal.createForeignKey(Request.REQUEST, DSL.name("fk_request_clinic"), new TableField[] { Request.REQUEST.CLINIC_ID }, Keys.CLINIC_PKEY, new TableField[] { Clinic.CLINIC.ID }, true);
+    public static final ForeignKey<RequestRecord, ClinicLocationRecord> REQUEST__FK_REQUEST_CLINIC_LOCATION = Internal.createForeignKey(Request.REQUEST, DSL.name("fk_request_clinic_location"), new TableField[] { Request.REQUEST.CLINIC_LOCATION_ID }, Keys.CLINIC_LOCATION_PKEY, new TableField[] { ClinicLocation.CLINIC_LOCATION.ID }, true);
     public static final ForeignKey<RequestRecord, DoctorRecord> REQUEST__FK_REQUEST_DOCTOR = Internal.createForeignKey(Request.REQUEST, DSL.name("fk_request_doctor"), new TableField[] { Request.REQUEST.DOCTOR_ID }, Keys.DOCTOR_PKEY, new TableField[] { Doctor.DOCTOR.ID }, true);
+    public static final ForeignKey<RequestRecord, AppUserRecord> REQUEST__FK_REQUEST_ENTERED_BY = Internal.createForeignKey(Request.REQUEST, DSL.name("fk_request_entered_by"), new TableField[] { Request.REQUEST.ENTERED_BY }, Keys.APP_USER_PKEY, new TableField[] { AppUser.APP_USER.ID }, true);
     public static final ForeignKey<RequestPatientRecord, PatientRecord> REQUEST_PATIENT__FK_REQUEST_PATIENT_PATIENT = Internal.createForeignKey(RequestPatient.REQUEST_PATIENT, DSL.name("fk_request_patient_patient"), new TableField[] { RequestPatient.REQUEST_PATIENT.PATIENT_ID }, Keys.PATIENT_PKEY, new TableField[] { Patient.PATIENT.ID }, true);
     public static final ForeignKey<RequestPatientRecord, RequestRecord> REQUEST_PATIENT__FK_REQUEST_PATIENT_REQUEST = Internal.createForeignKey(RequestPatient.REQUEST_PATIENT, DSL.name("fk_request_patient_request"), new TableField[] { RequestPatient.REQUEST_PATIENT.REQUEST_ID }, Keys.REQUEST_PKEY, new TableField[] { Request.REQUEST.ID }, true);
 }

@@ -4,9 +4,6 @@
 package com.lifelinecalllog.jooq.tables.records;
 
 
-import com.lifelinecalllog.jooq.enums.RequestStatus;
-import com.lifelinecalllog.jooq.enums.Urgency;
-import com.lifelinecalllog.jooq.enums.VisitType;
 import com.lifelinecalllog.jooq.tables.Request;
 
 import java.time.OffsetDateTime;
@@ -72,7 +69,7 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
     /**
      * Setter for <code>public.request.visit_type</code>.
      */
-    public RequestRecord setVisitType(VisitType value) {
+    public RequestRecord setVisitType(String value) {
         set(3, value);
         return this;
     }
@@ -80,14 +77,14 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
     /**
      * Getter for <code>public.request.visit_type</code>.
      */
-    public VisitType getVisitType() {
-        return (VisitType) get(3);
+    public String getVisitType() {
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>public.request.urgency</code>.
      */
-    public RequestRecord setUrgency(Urgency value) {
+    public RequestRecord setUrgency(String value) {
         set(4, value);
         return this;
     }
@@ -95,14 +92,14 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
     /**
      * Getter for <code>public.request.urgency</code>.
      */
-    public Urgency getUrgency() {
-        return (Urgency) get(4);
+    public String getUrgency() {
+        return (String) get(4);
     }
 
     /**
      * Setter for <code>public.request.status</code>.
      */
-    public RequestRecord setStatus(RequestStatus value) {
+    public RequestRecord setStatus(String value) {
         set(5, value);
         return this;
     }
@@ -110,8 +107,8 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
     /**
      * Getter for <code>public.request.status</code>.
      */
-    public RequestStatus getStatus() {
-        return (RequestStatus) get(5);
+    public String getStatus() {
+        return (String) get(5);
     }
 
     /**
@@ -249,6 +246,36 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
         return (OffsetDateTime) get(14);
     }
 
+    /**
+     * Setter for <code>public.request.clinic_location_id</code>.
+     */
+    public RequestRecord setClinicLocationId(UUID value) {
+        set(15, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.request.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return (UUID) get(15);
+    }
+
+    /**
+     * Setter for <code>public.request.entered_by</code>.
+     */
+    public RequestRecord setEnteredBy(UUID value) {
+        set(16, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.request.entered_by</code>.
+     */
+    public UUID getEnteredBy() {
+        return (UUID) get(16);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -272,7 +299,7 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
     /**
      * Create a detached, initialised RequestRecord
      */
-    public RequestRecord(UUID id, UUID clinicId, UUID doctorId, VisitType visitType, Urgency urgency, RequestStatus status, String requestDetails, OffsetDateTime receivedAt, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, OffsetDateTime startTime, OffsetDateTime endTime) {
+    public RequestRecord(UUID id, UUID clinicId, UUID doctorId, String visitType, String urgency, String status, String requestDetails, OffsetDateTime receivedAt, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, OffsetDateTime startTime, OffsetDateTime endTime, UUID clinicLocationId, UUID enteredBy) {
         super(Request.REQUEST);
 
         setId(id);
@@ -290,6 +317,8 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
         setVersion(version);
         setStartTime(startTime);
         setEndTime(endTime);
+        setClinicLocationId(clinicLocationId);
+        setEnteredBy(enteredBy);
         resetChangedOnNotNull();
     }
 
@@ -315,6 +344,8 @@ public class RequestRecord extends UpdatableRecordImpl<RequestRecord> {
             setVersion(value.getVersion());
             setStartTime(value.getStartTime());
             setEndTime(value.getEndTime());
+            setClinicLocationId(value.getClinicLocationId());
+            setEnteredBy(value.getEnteredBy());
             resetChangedOnNotNull();
         }
     }

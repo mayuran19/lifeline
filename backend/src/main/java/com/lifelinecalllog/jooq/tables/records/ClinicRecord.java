@@ -52,25 +52,10 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
     }
 
     /**
-     * Setter for <code>public.clinic.address</code>.
-     */
-    public ClinicRecord setAddress(String value) {
-        set(2, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>public.clinic.address</code>.
-     */
-    public String getAddress() {
-        return (String) get(2);
-    }
-
-    /**
      * Setter for <code>public.clinic.phone</code>.
      */
     public ClinicRecord setPhone(String value) {
-        set(3, value);
+        set(2, value);
         return this;
     }
 
@@ -78,14 +63,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.phone</code>.
      */
     public String getPhone() {
-        return (String) get(3);
+        return (String) get(2);
     }
 
     /**
      * Setter for <code>public.clinic.fax</code>.
      */
     public ClinicRecord setFax(String value) {
-        set(4, value);
+        set(3, value);
         return this;
     }
 
@@ -93,29 +78,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.fax</code>.
      */
     public String getFax() {
-        return (String) get(4);
-    }
-
-    /**
-     * Setter for <code>public.clinic.email</code>.
-     */
-    public ClinicRecord setEmail(String value) {
-        set(5, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>public.clinic.email</code>.
-     */
-    public String getEmail() {
-        return (String) get(5);
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>public.clinic.active</code>.
      */
     public ClinicRecord setActive(Boolean value) {
-        set(6, value);
+        set(4, value);
         return this;
     }
 
@@ -123,14 +93,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.active</code>.
      */
     public Boolean getActive() {
-        return (Boolean) get(6);
+        return (Boolean) get(4);
     }
 
     /**
      * Setter for <code>public.clinic.created_date</code>.
      */
     public ClinicRecord setCreatedDate(OffsetDateTime value) {
-        set(7, value);
+        set(5, value);
         return this;
     }
 
@@ -138,14 +108,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.created_date</code>.
      */
     public OffsetDateTime getCreatedDate() {
-        return (OffsetDateTime) get(7);
+        return (OffsetDateTime) get(5);
     }
 
     /**
      * Setter for <code>public.clinic.created_by</code>.
      */
     public ClinicRecord setCreatedBy(UUID value) {
-        set(8, value);
+        set(6, value);
         return this;
     }
 
@@ -153,14 +123,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.created_by</code>.
      */
     public UUID getCreatedBy() {
-        return (UUID) get(8);
+        return (UUID) get(6);
     }
 
     /**
      * Setter for <code>public.clinic.last_modified_date</code>.
      */
     public ClinicRecord setLastModifiedDate(OffsetDateTime value) {
-        set(9, value);
+        set(7, value);
         return this;
     }
 
@@ -168,14 +138,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.last_modified_date</code>.
      */
     public OffsetDateTime getLastModifiedDate() {
-        return (OffsetDateTime) get(9);
+        return (OffsetDateTime) get(7);
     }
 
     /**
      * Setter for <code>public.clinic.last_modified_by</code>.
      */
     public ClinicRecord setLastModifiedBy(UUID value) {
-        set(10, value);
+        set(8, value);
         return this;
     }
 
@@ -183,14 +153,14 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.last_modified_by</code>.
      */
     public UUID getLastModifiedBy() {
-        return (UUID) get(10);
+        return (UUID) get(8);
     }
 
     /**
      * Setter for <code>public.clinic.version</code>.
      */
     public ClinicRecord setVersion(Integer value) {
-        set(11, value);
+        set(9, value);
         return this;
     }
 
@@ -198,7 +168,7 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
      * Getter for <code>public.clinic.version</code>.
      */
     public Integer getVersion() {
-        return (Integer) get(11);
+        return (Integer) get(9);
     }
 
     // -------------------------------------------------------------------------
@@ -224,15 +194,13 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
     /**
      * Create a detached, initialised ClinicRecord
      */
-    public ClinicRecord(UUID id, String name, String address, String phone, String fax, String email, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
+    public ClinicRecord(UUID id, String name, String phone, String fax, Boolean active, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
         super(Clinic.CLINIC);
 
         setId(id);
         setName(name);
-        setAddress(address);
         setPhone(phone);
         setFax(fax);
-        setEmail(email);
         setActive(active);
         setCreatedDate(createdDate);
         setCreatedBy(createdBy);
@@ -251,10 +219,8 @@ public class ClinicRecord extends UpdatableRecordImpl<ClinicRecord> {
         if (value != null) {
             setId(value.getId());
             setName(value.getName());
-            setAddress(value.getAddress());
             setPhone(value.getPhone());
             setFax(value.getFax());
-            setEmail(value.getEmail());
             setActive(value.getActive());
             setCreatedDate(value.getCreatedDate());
             setCreatedBy(value.getCreatedBy());

@@ -189,4 +189,19 @@ public class PatientClinicDao extends DAOImpl<PatientClinicRecord, com.lifelinec
     public List<com.lifelinecalllog.jooq.tables.pojos.PatientClinic> fetchByVersion(Integer... values) {
         return fetch(PatientClinic.PATIENT_CLINIC.VERSION, values);
     }
+
+    /**
+     * Fetch records that have <code>clinic_location_id BETWEEN lowerInclusive
+     * AND upperInclusive</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.PatientClinic> fetchRangeOfClinicLocationId(UUID lowerInclusive, UUID upperInclusive) {
+        return fetchRange(PatientClinic.PATIENT_CLINIC.CLINIC_LOCATION_ID, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>clinic_location_id IN (values)</code>
+     */
+    public List<com.lifelinecalllog.jooq.tables.pojos.PatientClinic> fetchByClinicLocationId(UUID... values) {
+        return fetch(PatientClinic.PATIENT_CLINIC.CLINIC_LOCATION_ID, values);
+    }
 }

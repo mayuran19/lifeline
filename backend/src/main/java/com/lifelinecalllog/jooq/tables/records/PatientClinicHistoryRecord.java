@@ -187,6 +187,21 @@ public class PatientClinicHistoryRecord extends TableRecordImpl<PatientClinicHis
         return (OffsetDateTime) get(10);
     }
 
+    /**
+     * Setter for <code>public.patient_clinic_history.clinic_location_id</code>.
+     */
+    public PatientClinicHistoryRecord setClinicLocationId(UUID value) {
+        set(11, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient_clinic_history.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return (UUID) get(11);
+    }
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -201,7 +216,7 @@ public class PatientClinicHistoryRecord extends TableRecordImpl<PatientClinicHis
     /**
      * Create a detached, initialised PatientClinicHistoryRecord
      */
-    public PatientClinicHistoryRecord(UUID id, UUID patientId, UUID clinicId, Boolean isCurrent, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate) {
+    public PatientClinicHistoryRecord(UUID id, UUID patientId, UUID clinicId, Boolean isCurrent, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, String dmlType, OffsetDateTime historyCreatedDate, UUID clinicLocationId) {
         super(PatientClinicHistory.PATIENT_CLINIC_HISTORY);
 
         setId(id);
@@ -215,6 +230,7 @@ public class PatientClinicHistoryRecord extends TableRecordImpl<PatientClinicHis
         setVersion(version);
         setDmlType(dmlType);
         setHistoryCreatedDate(historyCreatedDate);
+        setClinicLocationId(clinicLocationId);
         resetChangedOnNotNull();
     }
 
@@ -236,6 +252,7 @@ public class PatientClinicHistoryRecord extends TableRecordImpl<PatientClinicHis
             setVersion(value.getVersion());
             setDmlType(value.getDmlType());
             setHistoryCreatedDate(value.getHistoryCreatedDate());
+            setClinicLocationId(value.getClinicLocationId());
             resetChangedOnNotNull();
         }
     }

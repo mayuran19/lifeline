@@ -16,5 +16,17 @@
     <include file="009-audit-columns-uuid.xml" relativeToChangelogFile="true"/>
     <include file="010-request-start-end-time.xml" relativeToChangelogFile="true"/>
     <include file="011-fix-request-history-columns.xml" relativeToChangelogFile="true"/>
+    <include file="012-clinic-location.xml" relativeToChangelogFile="true"/>
+    <include file="013-user-roles.xml" relativeToChangelogFile="true"/>
+    <include file="014-patient-status.xml" relativeToChangelogFile="true"/>
+    <include file="015-patient-remark.xml" relativeToChangelogFile="true"/>
+    <include file="016-doctor-prescriber-clinic.xml" relativeToChangelogFile="true"/>
+    <include file="017-request-entered-by.xml" relativeToChangelogFile="true"/>
+    <include file="018-request-remark.xml" relativeToChangelogFile="true"/>
+    <include file="019-drop-request-remark.xml" relativeToChangelogFile="true"/>
+    <include file="020-configuration-table.xml" relativeToChangelogFile="true"/>
+    <include file="021-request-varchar-enums.xml" relativeToChangelogFile="true"/>
+    <include file="022-config-composite-pk.xml" relativeToChangelogFile="true"/>
+    <include file="023-account-security.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

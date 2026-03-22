@@ -86,21 +86,6 @@ public class ClinicDao extends DAOImpl<ClinicRecord, com.lifelinecalllog.jooq.ta
     }
 
     /**
-     * Fetch records that have <code>address BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Clinic> fetchRangeOfAddress(String lowerInclusive, String upperInclusive) {
-        return fetchRange(Clinic.CLINIC.ADDRESS, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>address IN (values)</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Clinic> fetchByAddress(String... values) {
-        return fetch(Clinic.CLINIC.ADDRESS, values);
-    }
-
-    /**
      * Fetch records that have <code>phone BETWEEN lowerInclusive AND
      * upperInclusive</code>
      */
@@ -128,21 +113,6 @@ public class ClinicDao extends DAOImpl<ClinicRecord, com.lifelinecalllog.jooq.ta
      */
     public List<com.lifelinecalllog.jooq.tables.pojos.Clinic> fetchByFax(String... values) {
         return fetch(Clinic.CLINIC.FAX, values);
-    }
-
-    /**
-     * Fetch records that have <code>email BETWEEN lowerInclusive AND
-     * upperInclusive</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Clinic> fetchRangeOfEmail(String lowerInclusive, String upperInclusive) {
-        return fetchRange(Clinic.CLINIC.EMAIL, lowerInclusive, upperInclusive);
-    }
-
-    /**
-     * Fetch records that have <code>email IN (values)</code>
-     */
-    public List<com.lifelinecalllog.jooq.tables.pojos.Clinic> fetchByEmail(String... values) {
-        return fetch(Clinic.CLINIC.EMAIL, values);
     }
 
     /**

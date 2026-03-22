@@ -156,6 +156,21 @@ public class PatientClinicRecord extends UpdatableRecordImpl<PatientClinicRecord
         return (Integer) get(8);
     }
 
+    /**
+     * Setter for <code>public.patient_clinic.clinic_location_id</code>.
+     */
+    public PatientClinicRecord setClinicLocationId(UUID value) {
+        set(9, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>public.patient_clinic.clinic_location_id</code>.
+     */
+    public UUID getClinicLocationId() {
+        return (UUID) get(9);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -179,7 +194,7 @@ public class PatientClinicRecord extends UpdatableRecordImpl<PatientClinicRecord
     /**
      * Create a detached, initialised PatientClinicRecord
      */
-    public PatientClinicRecord(UUID id, UUID patientId, UUID clinicId, Boolean isCurrent, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version) {
+    public PatientClinicRecord(UUID id, UUID patientId, UUID clinicId, Boolean isCurrent, OffsetDateTime createdDate, UUID createdBy, OffsetDateTime lastModifiedDate, UUID lastModifiedBy, Integer version, UUID clinicLocationId) {
         super(PatientClinic.PATIENT_CLINIC);
 
         setId(id);
@@ -191,6 +206,7 @@ public class PatientClinicRecord extends UpdatableRecordImpl<PatientClinicRecord
         setLastModifiedDate(lastModifiedDate);
         setLastModifiedBy(lastModifiedBy);
         setVersion(version);
+        setClinicLocationId(clinicLocationId);
         resetChangedOnNotNull();
     }
 
@@ -210,6 +226,7 @@ public class PatientClinicRecord extends UpdatableRecordImpl<PatientClinicRecord
             setLastModifiedDate(value.getLastModifiedDate());
             setLastModifiedBy(value.getLastModifiedBy());
             setVersion(value.getVersion());
+            setClinicLocationId(value.getClinicLocationId());
             resetChangedOnNotNull();
         }
     }

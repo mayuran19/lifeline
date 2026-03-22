@@ -6,9 +6,6 @@ package com.lifelinecalllog.jooq.tables;
 
 import com.lifelinecalllog.jooq.Indexes;
 import com.lifelinecalllog.jooq.Public;
-import com.lifelinecalllog.jooq.enums.RequestStatus;
-import com.lifelinecalllog.jooq.enums.Urgency;
-import com.lifelinecalllog.jooq.enums.VisitType;
 import com.lifelinecalllog.jooq.tables.records.RequestHistoryRecord;
 
 import java.time.OffsetDateTime;
@@ -74,17 +71,17 @@ public class RequestHistory extends TableImpl<RequestHistoryRecord> {
     /**
      * The column <code>public.request_history.visit_type</code>.
      */
-    public final TableField<RequestHistoryRecord, VisitType> VISIT_TYPE = createField(DSL.name("visit_type"), SQLDataType.VARCHAR.asEnumDataType(VisitType.class), this, "");
+    public final TableField<RequestHistoryRecord, String> VISIT_TYPE = createField(DSL.name("visit_type"), SQLDataType.VARCHAR(100), this, "");
 
     /**
      * The column <code>public.request_history.urgency</code>.
      */
-    public final TableField<RequestHistoryRecord, Urgency> URGENCY = createField(DSL.name("urgency"), SQLDataType.VARCHAR.asEnumDataType(Urgency.class), this, "");
+    public final TableField<RequestHistoryRecord, String> URGENCY = createField(DSL.name("urgency"), SQLDataType.VARCHAR(100), this, "");
 
     /**
      * The column <code>public.request_history.status</code>.
      */
-    public final TableField<RequestHistoryRecord, RequestStatus> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR.asEnumDataType(RequestStatus.class), this, "");
+    public final TableField<RequestHistoryRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(100), this, "");
 
     /**
      * The column <code>public.request_history.request_details</code>.
@@ -140,6 +137,16 @@ public class RequestHistory extends TableImpl<RequestHistoryRecord> {
      * The column <code>public.request_history.end_time</code>.
      */
     public final TableField<RequestHistoryRecord, OffsetDateTime> END_TIME = createField(DSL.name("end_time"), SQLDataType.TIMESTAMPWITHTIMEZONE(6), this, "");
+
+    /**
+     * The column <code>public.request_history.clinic_location_id</code>.
+     */
+    public final TableField<RequestHistoryRecord, UUID> CLINIC_LOCATION_ID = createField(DSL.name("clinic_location_id"), SQLDataType.UUID, this, "");
+
+    /**
+     * The column <code>public.request_history.entered_by</code>.
+     */
+    public final TableField<RequestHistoryRecord, UUID> ENTERED_BY = createField(DSL.name("entered_by"), SQLDataType.UUID, this, "");
 
     private RequestHistory(Name alias, Table<RequestHistoryRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
