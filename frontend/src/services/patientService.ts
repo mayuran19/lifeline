@@ -1,4 +1,5 @@
 import axios from '../lib/axios';
+import type { PageResponse } from './requestService';
 
 export type PatientStatus = 'ACTIVE' | 'INACTIVE' | 'DECEASED';
 
@@ -40,8 +41,17 @@ export interface PatientRequest {
 }
 
 export const patientService = {
-  async getAll(activeOnly = true, search?: string): Promise<Patient[]> {
-    const res = await axios.get<Patient[]>('/v1/admin/patients', { params: { activeOnly, search } });
+  async getAll(
+    activeOnly = true,
+    search?: string,
+    sortBy = 'lastName',
+    sortDir: 'asc' | 'desc' = 'asc',
+    page = 0,
+    size = 20,
+  ): Promise<PageResponse<Patient>> {
+    const res = await axios.get<PageResponse<Patient>>('/v1/admin/patients', {
+      params: { activeOnly, search, sortBy, sortDir, page, size },
+    });
     return res.data;
   },
   async getById(id: string): Promise<Patient> {

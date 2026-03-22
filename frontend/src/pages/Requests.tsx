@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as XLSX from 'xlsx';
 import Layout from '../components/Layout';
 import Modal from '../components/Modal';
 import RichTextEditor from '../components/RichTextEditor';
@@ -18,37 +17,6 @@ import { configurationService, type Configuration } from '../services/configurat
 
 function configLabel(configs: Configuration[], key: string) {
   return configs.find(c => c.configKey === key)?.configDescription ?? key;
-}
-
-// ─── Excel Export ─────────────────────────────────────────────────────────────
-
-function exportToExcel(requests: Request[], visitTypeConfigs: Configuration[], urgencyConfigs: Configuration[], statusConfigs: Configuration[]) {
-  const rows = requests.map(r => ({
-    'Received At': r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '',
-    'Clinic': r.clinicName,
-    'Location': r.clinicLocationName ?? '',
-    'Doctor': r.doctorName ? `Dr. ${r.doctorName}` : '',
-    'Entered By': r.enteredByName ?? '',
-    'Visit Type': configLabel(visitTypeConfigs, r.visitType),
-    'Urgency': configLabel(urgencyConfigs, r.urgency),
-    'Status': configLabel(statusConfigs, r.status),
-    'Request Details': r.requestDetails ? r.requestDetails.replace(/<[^>]+>/g, '') : '',
-    'Patients': r.patients.map(p => `${p.patientFirstName} ${p.patientLastName}`).join('; '),
-    'Patient Count': r.patients.length,
-
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Requests');
-
-  // Auto column widths
-  const colWidths = Object.keys(rows[0] ?? {}).map(key => ({
-    wch: Math.max(key.length, ...rows.map(r => String(r[key as keyof typeof r] ?? '').length).slice(0, 100)) + 2,
-  }));
-  ws['!cols'] = colWidths;
-
-  XLSX.writeFile(wb, `requests-${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
 type TabType = 'list' | 'calendar';
@@ -172,26 +140,66 @@ export default function Requests() {
   const { user } = useAuth();
   const [tab, setTab] = useState<TabType>('list');
   const [statusFilter, setStatusFilter] = useState<RequestStatus | ''>('');
+  const [clinicFilter, setClinicFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [doctorFilter, setDoctorFilter] = useState('');
+  const [receivedDate, setReceivedDate] = useState('');
+  const [sortBy, setSortBy] = useState('receivedAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 20;
   const [calendarClinicId, setCalendarClinicId] = useState('');
   const [calendarView, setCalendarView] = useState<CalendarView>('week');
   const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
+  const [exporting, setExporting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [detailRequest, setDetailRequest] = useState<Request | null>(null);
   const [detailOpenInEdit, setDetailOpenInEdit] = useState(false);
+  const [patientsPopup, setPatientsPopup] = useState<Request | null>(null);
 
-  const { data: requests = [], isLoading } = useQuery({
-    queryKey: ['requests', statusFilter],
-    queryFn: () => requestService.getAll(statusFilter || undefined),
+  const handleSort = (col: string) => {
+    if (sortBy === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortBy(col); setSortDir('asc'); }
+    setPage(0);
+  };
+
+  const resetFilters = () => {
+    setStatusFilter(''); setClinicFilter(''); setLocationFilter(''); setDoctorFilter('');
+    setReceivedDate(''); setPage(0);
+  };
+
+  const { data: requestPage, isLoading } = useQuery({
+    queryKey: ['requests', statusFilter, clinicFilter, locationFilter, doctorFilter, receivedDate, sortBy, sortDir, page],
+    queryFn: () => requestService.getAll({
+      status: statusFilter || undefined,
+      clinicId: clinicFilter || undefined,
+      locationId: locationFilter || undefined,
+      doctorId: doctorFilter || undefined,
+      receivedDate: receivedDate || undefined,
+      sortBy,
+      sortDir,
+      page,
+      size: PAGE_SIZE,
+    }),
   });
+
+  const requests = requestPage?.content ?? [];
+  const totalPages = requestPage?.totalPages ?? 0;
+  const totalElements = requestPage?.totalElements ?? 0;
 
   const { data: calendarRequests = [] } = useQuery({
     queryKey: ['requests-calendar', calendarClinicId],
-    queryFn: () => requestService.getAll(undefined, calendarClinicId || undefined),
+    queryFn: async () => {
+      const res = await requestService.getAll({ clinicId: calendarClinicId || undefined, size: 500 });
+      return res.content;
+    },
     enabled: tab === 'calendar',
   });
 
   const { data: doctors = [] } = useQuery({ queryKey: ['doctors', true], queryFn: () => doctorService.getAll(true) });
   const { data: clinics = [] } = useQuery({ queryKey: ['clinics', true], queryFn: () => clinicService.getAll(true) });
+  const filterClinic = clinics.find((c: any) => c.id === clinicFilter);
+  const filterLocations = filterClinic?.locations?.filter((l: any) => l.active) ?? [];
   const { data: visitTypeConfigs = [] } = useQuery({ queryKey: ['configurations', 'VISIT_TYPE'], queryFn: () => configurationService.getAll('VISIT_TYPE') });
   const { data: urgencyConfigs = [] } = useQuery({ queryKey: ['configurations', 'URGENCY'], queryFn: () => configurationService.getAll('URGENCY') });
   const { data: statusConfigs = [] } = useQuery({ queryKey: ['configurations', 'REQUEST_STATUS'], queryFn: () => configurationService.getAll('REQUEST_STATUS') });
@@ -226,15 +234,28 @@ export default function Requests() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Requests</h1>
-          <p className="text-sm text-gray-500 mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-gray-500 mt-1">{totalElements} request{totalElements !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
-          {requests.length > 0 && (
-            <button onClick={() => exportToExcel(requests, visitTypeConfigs, urgencyConfigs, statusConfigs)}
-              className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700">
-              Export Excel
-            </button>
-          )}
+          <button
+            disabled={exporting}
+            onClick={async () => {
+              setExporting(true);
+              try {
+                await requestService.exportExcel({
+                  status: statusFilter || undefined,
+                  clinicId: clinicFilter || undefined,
+                  locationId: locationFilter || undefined,
+                  doctorId: doctorFilter || undefined,
+                  receivedDate: receivedDate || undefined,
+                });
+              } finally {
+                setExporting(false);
+              }
+            }}
+            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50">
+            {exporting ? 'Exporting...' : 'Export Excel'}
+          </button>
           <button onClick={() => setCreateOpen(true)} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
             New Request
           </button>
@@ -256,60 +277,101 @@ export default function Requests() {
       {/* ── List View ── */}
       {tab === 'list' && (
         <>
-          <div className="flex items-center space-x-3 mb-4">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(0); }}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
               <option value="">All Statuses</option>
               {statusConfigs.filter(c => c.status === 'ACTIVE').map(c => (
                 <option key={c.configKey} value={c.configKey}>{c.configDescription ?? c.configKey}</option>
               ))}
             </select>
+            <select value={clinicFilter} onChange={e => { setClinicFilter(e.target.value); setLocationFilter(''); setPage(0); }}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              <option value="">All Clinics</option>
+              {clinics.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            {filterLocations.length > 0 && (
+              <select value={locationFilter} onChange={e => { setLocationFilter(e.target.value); setPage(0); }}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">All Locations</option>
+                {filterLocations.map((l: any) => <option key={l.id} value={l.id}>{l.name || 'Unnamed'}{l.suburb ? ` — ${l.suburb}` : ''}</option>)}
+              </select>
+            )}
+            <select value={doctorFilter} onChange={e => { setDoctorFilter(e.target.value); setPage(0); }}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+              <option value="">All Doctors</option>
+              {doctors.map((d: any) => <option key={d.id} value={d.id}>Dr. {d.firstName} {d.lastName}</option>)}
+            </select>
+            <div className="flex items-center gap-1">
+              <label className="text-sm text-gray-500 whitespace-nowrap">Received:</label>
+              <input type="date" value={receivedDate} onChange={e => { setReceivedDate(e.target.value); setPage(0); }}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            {(statusFilter || clinicFilter || locationFilter || doctorFilter || receivedDate) && (
+              <button onClick={resetFilters} className="px-3 py-2 text-sm text-gray-500 hover:text-gray-800 border border-gray-200 rounded-md hover:bg-gray-50">
+                Clear filters
+              </button>
+            )}
           </div>
+
           {isLoading ? (
             <div className="text-center py-12 text-gray-500">Loading...</div>
           ) : requests.length === 0 ? (
             <div className="text-center py-12 text-gray-400">No requests found</div>
           ) : (
-            <div className="bg-white rounded-lg shadow overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Received</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clinic / Location</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Visit Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Urgency</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patients</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entered By</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-3" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {requests.map(r => (
-                    <tr key={r.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{fmt.datetime(r.receivedAt)}</td>
-                      <td className="px-4 py-4 text-sm">
-                        <span className="font-medium text-gray-900">{r.clinicName}</span>
-                        {r.clinicLocationName && <div className="text-xs text-gray-400 mt-0.5">{r.clinicLocationName}</div>}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.doctorName ? `Dr. ${r.doctorName}` : <span className="text-gray-400 italic">Unassigned</span>}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{configLabel(visitTypeConfigs, r.visitType)}</td>
-                      <td className="px-4 py-4 whitespace-nowrap"><UrgencyBadge urgency={r.urgency} label={configLabel(urgencyConfigs, r.urgency)} /></td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.patients.length}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.enteredByName || <span className="text-gray-400">—</span>}</td>
-                      <td className="px-4 py-4 whitespace-nowrap"><StatusBadge status={r.status} label={configLabel(statusConfigs, r.status)} /></td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
-                        <div className="flex items-center justify-end gap-3">
-                          <button onClick={() => openDetail(r)} className="text-blue-600 hover:text-blue-800 font-medium">View</button>
-                          <button onClick={() => openDetailEdit(r)} className="text-gray-500 hover:text-gray-700 font-medium">Edit</button>
-                        </div>
-                      </td>
+            <>
+              <div className="bg-white rounded-lg shadow overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <SortTh col="receivedAt" label="Received" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <SortTh col="clinic" label="Clinic / Location" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <SortTh col="doctor" label="Doctor" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <SortTh col="visitType" label="Visit Type" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <SortTh col="urgency" label="Urgency" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patients</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entered By</th>
+                      <SortTh col="status" label="Status" current={sortBy} dir={sortDir} onSort={handleSort} />
+                      <th className="px-4 py-3" />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {requests.map(r => (
+                      <tr key={r.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{fmt.datetime(r.receivedAt)}</td>
+                        <td className="px-4 py-4 text-sm">
+                          <span className="font-medium text-gray-900">{r.clinicName}</span>
+                          {r.clinicLocationName && <div className="text-xs text-gray-400 mt-0.5">{r.clinicLocationName}</div>}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.doctorName ? `Dr. ${r.doctorName}` : <span className="text-gray-400 italic">Unassigned</span>}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{configLabel(visitTypeConfigs, r.visitType)}</td>
+                        <td className="px-4 py-4 whitespace-nowrap"><UrgencyBadge urgency={r.urgency} label={configLabel(urgencyConfigs, r.urgency)} /></td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                          {r.patients.length === 0 ? (
+                            <span className="text-gray-400">0</span>
+                          ) : (
+                            <button onClick={() => setPatientsPopup(r)}
+                              className="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                              {r.patients.length}
+                            </button>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.enteredByName || <span className="text-gray-400">—</span>}</td>
+                        <td className="px-4 py-4 whitespace-nowrap"><StatusBadge status={r.status} label={configLabel(statusConfigs, r.status)} /></td>
+                        <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
+                          <div className="flex items-center justify-end gap-3">
+                            <button onClick={() => openDetail(r)} className="text-blue-600 hover:text-blue-800 font-medium">View</button>
+                            <button onClick={() => openDetailEdit(r)} className="text-gray-500 hover:text-gray-700 font-medium">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination page={page} totalPages={totalPages} totalElements={totalElements} pageSize={PAGE_SIZE} onPage={setPage} />
+            </>
           )}
         </>
       )}
@@ -373,7 +435,94 @@ export default function Requests() {
           onUpdated={updated => { invalidate(); setDetailRequest(updated); }}
         />
       )}
+
+      {patientsPopup && (
+        <PatientsPopup request={patientsPopup} onClose={() => setPatientsPopup(null)} />
+      )}
     </Layout>
+  );
+}
+
+// ─── Shared UI helpers ────────────────────────────────────────────────────────
+
+function SortTh({ col, label, current, dir, onSort }: {
+  col: string; label: string; current: string; dir: 'asc' | 'desc'; onSort: (col: string) => void;
+}) {
+  const active = current === col;
+  return (
+    <th
+      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap"
+      onClick={() => onSort(col)}
+    >
+      {label}
+      <span className="ml-1 text-gray-400">
+        {active ? (dir === 'asc' ? '↑' : '↓') : '↕'}
+      </span>
+    </th>
+  );
+}
+
+function Pagination({ page, totalPages, totalElements, pageSize, onPage }: {
+  page: number; totalPages: number; totalElements: number; pageSize: number; onPage: (p: number) => void;
+}) {
+  const start = page * pageSize + 1;
+  const end = Math.min((page + 1) * pageSize, totalElements);
+  return (
+    <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+      <span>{start}–{end} of {totalElements}</span>
+      <div className="flex items-center gap-1">
+        <button disabled={page === 0} onClick={() => onPage(0)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">«</button>
+        <button disabled={page === 0} onClick={() => onPage(page - 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">‹</button>
+        <span className="px-3 py-1">Page {page + 1} of {totalPages}</span>
+        <button disabled={page >= totalPages - 1} onClick={() => onPage(page + 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">›</button>
+        <button disabled={page >= totalPages - 1} onClick={() => onPage(totalPages - 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">»</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Patients Popup ───────────────────────────────────────────────────────────
+
+function PatientsPopup({ request, onClose }: { request: Request; onClose: () => void }) {
+  return (
+    <Modal
+      title={`Patients on request — ${request.clinicName}`}
+      onClose={onClose}
+      size="lg"
+    >
+      {request.patients.length === 0 ? (
+        <p className="text-sm text-gray-400 text-center py-6">No patients on this request.</p>
+      ) : (
+        <table className="min-w-full divide-y divide-gray-200 text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Medicare No</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {request.patients.map(p => (
+              <tr key={p.requestPatientId}>
+                <td className="px-4 py-3 font-medium text-gray-900">
+                  {p.patientFirstName} {p.patientLastName}
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  {p.medicareNo ?? <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  {p.notes ?? <span className="text-gray-300">—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Modal>
   );
 }
 

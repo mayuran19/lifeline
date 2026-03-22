@@ -2,10 +2,13 @@ package com.lifelinecalllog.service;
 
 import static com.lifelinecalllog.jooq.Tables.*;
 
+import com.lifelinecalllog.dto.PageResponse;
 import com.lifelinecalllog.dto.RequestCreateRequest;
 import com.lifelinecalllog.dto.RequestResponse;
 import com.lifelinecalllog.dto.RequestUpdateRequest;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +16,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.SortField;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,15 +37,63 @@ public class RequestService {
     this.dsl = dsl;
   }
 
-  public List<RequestResponse> findAll(String status, UUID clinicId) {
+  public PageResponse<RequestResponse> findAll(
+      String status,
+      UUID clinicId,
+      UUID locationId,
+      UUID doctorId,
+      String receivedDate,
+      String sortBy,
+      String sortDir,
+      int page,
+      int size) {
     Condition condition = DSL.trueCondition();
     if (status != null) condition = condition.and(REQUEST.STATUS.eq(status));
     if (clinicId != null) condition = condition.and(REQUEST.CLINIC_ID.eq(clinicId));
-    return buildSelect()
-        .where(condition)
-        .orderBy(REQUEST.RECEIVED_AT.desc())
-        .fetch(r -> toResponse(r, fetchPatients(r.get(REQUEST.ID))));
+    if (locationId != null) condition = condition.and(REQUEST.CLINIC_LOCATION_ID.eq(locationId));
+    if (doctorId != null) condition = condition.and(REQUEST.DOCTOR_ID.eq(doctorId));
+    if (receivedDate != null) {
+      LocalDate date = LocalDate.parse(receivedDate);
+      condition =
+          condition.and(
+              REQUEST
+                  .RECEIVED_AT
+                  .greaterOrEqual(date.atStartOfDay().atOffset(ZoneOffset.UTC))
+                  .and(
+                      REQUEST.RECEIVED_AT.lessThan(
+                          date.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC))));
+    }
+
+    SortField<?> order = resolveSort(sortBy, sortDir);
+    long total = dsl.fetchCount(buildSelect().where(condition));
+    int totalPages = (int) Math.ceil((double) total / size);
+
+    List<RequestResponse> content =
+        buildSelect()
+            .where(condition)
+            .orderBy(order)
+            .limit(size)
+            .offset((long) page * size)
+            .fetch(r -> toResponse(r, fetchPatients(r.get(REQUEST.ID))));
+
+    return new PageResponse<>(content, page, size, total, totalPages);
   }
+
+  // @formatter:off
+  private SortField<?> resolveSort(String sortBy, String sortDir) {
+    boolean asc = !"desc".equalsIgnoreCase(sortDir);
+    return switch (sortBy == null ? "" : sortBy) {
+      case "clinic" -> asc ? CLINIC_NAME.asc() : CLINIC_NAME.desc();
+      case "location" -> asc ? LOCATION_NAME.asc() : LOCATION_NAME.desc();
+      case "doctor" -> asc ? DOCTOR_NAME.asc() : DOCTOR_NAME.desc();
+      case "visitType" -> asc ? REQUEST.VISIT_TYPE.asc() : REQUEST.VISIT_TYPE.desc();
+      case "urgency" -> asc ? REQUEST.URGENCY.asc() : REQUEST.URGENCY.desc();
+      case "status" -> asc ? REQUEST.STATUS.asc() : REQUEST.STATUS.desc();
+      default -> asc ? REQUEST.RECEIVED_AT.asc() : REQUEST.RECEIVED_AT.desc();
+    };
+  }
+
+  // @formatter:on
 
   public RequestResponse findById(UUID id) {
     var record =

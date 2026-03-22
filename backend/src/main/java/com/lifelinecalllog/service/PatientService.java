@@ -2,6 +2,7 @@ package com.lifelinecalllog.service;
 
 import static com.lifelinecalllog.jooq.Tables.*;
 
+import com.lifelinecalllog.dto.PageResponse;
 import com.lifelinecalllog.dto.PatientRequest;
 import com.lifelinecalllog.dto.PatientResponse;
 import com.lifelinecalllog.jooq.enums.PatientStatus;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.SortField;
 import org.jooq.impl.DSL;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,45 @@ public class PatientService {
     this.dsl = dsl;
   }
 
-  public List<PatientResponse> findAll(boolean activeOnly, String search) {
+  public PageResponse<PatientResponse> findAll(
+      boolean activeOnly, String search, String sortBy, String sortDir, int page, int size) {
+    Condition condition = DSL.trueCondition();
+    if (activeOnly) condition = condition.and(PATIENT.STATUS.eq(PatientStatus.ACTIVE));
+    if (search != null && !search.isBlank()) {
+      String pattern = "%" + search.toLowerCase() + "%";
+      condition =
+          condition.and(
+              PATIENT.FIRST_NAME.lower().like(pattern).or(PATIENT.LAST_NAME.lower().like(pattern)));
+    }
+
+    SortField<?> order = resolveSort(sortBy, sortDir);
+    long total = dsl.fetchCount(dsl.selectFrom(PATIENT).where(condition));
+    int totalPages = (int) Math.ceil((double) total / size);
+
+    List<PatientResponse> content =
+        dsl.selectFrom(PATIENT)
+            .where(condition)
+            .orderBy(order)
+            .limit(size)
+            .offset((long) page * size)
+            .fetch(r -> toResponse(r.getId()));
+
+    return new PageResponse<>(content, page, size, total, totalPages);
+  }
+
+  // @formatter:off
+  private SortField<?> resolveSort(String sortBy, String sortDir) {
+    boolean asc = !"desc".equalsIgnoreCase(sortDir);
+    return switch (sortBy == null ? "" : sortBy) {
+      case "firstName" -> asc ? PATIENT.FIRST_NAME.asc() : PATIENT.FIRST_NAME.desc();
+      case "status" -> asc ? PATIENT.STATUS.asc() : PATIENT.STATUS.desc();
+      default -> asc ? PATIENT.LAST_NAME.asc().nullsLast() : PATIENT.LAST_NAME.desc().nullsLast();
+    };
+  }
+
+  // @formatter:on
+
+  public List<PatientResponse> findAllForSearch(boolean activeOnly, String search) {
     Condition condition = DSL.trueCondition();
     if (activeOnly) condition = condition.and(PATIENT.STATUS.eq(PatientStatus.ACTIVE));
     if (search != null && !search.isBlank()) {
@@ -36,6 +76,7 @@ public class PatientService {
     return dsl.selectFrom(PATIENT)
         .where(condition)
         .orderBy(PATIENT.LAST_NAME, PATIENT.FIRST_NAME)
+        .limit(20)
         .fetch(r -> toResponse(r.getId()));
   }
 

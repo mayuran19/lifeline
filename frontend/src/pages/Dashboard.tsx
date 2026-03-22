@@ -7,17 +7,18 @@ import { patientService } from '../services/patientService';
 import { clinicService } from '../services/clinicService';
 
 export default function Dashboard() {
-  const { data: requests = [] } = useQuery({
+  const { data: requestPage } = useQuery({
     queryKey: ['requests', ''],
-    queryFn: () => requestService.getAll(),
+    queryFn: () => requestService.getAll({ size: 500 }),
   });
+  const requests = requestPage?.content ?? [];
 
   const { data: doctors = [] } = useQuery({
     queryKey: ['doctors', true],
     queryFn: () => doctorService.getAll(true),
   });
 
-  const { data: patients = [] } = useQuery({
+  const { data: patientPage } = useQuery({
     queryKey: ['patients', true],
     queryFn: () => patientService.getAll(true),
   });
@@ -36,7 +37,7 @@ export default function Dashboard() {
     { label: 'In Progress', value: inProgress, color: 'text-yellow-600', bg: 'bg-yellow-50', path: '/requests' },
     { label: 'Completed', value: completed, color: 'text-green-600', bg: 'bg-green-50', path: '/requests' },
     { label: 'Active Doctors', value: doctors.length, color: 'text-purple-600', bg: 'bg-purple-50', path: '/doctors' },
-    { label: 'Active Patients', value: patients.length, color: 'text-indigo-600', bg: 'bg-indigo-50', path: '/patients' },
+    { label: 'Active Patients', value: patientPage?.totalElements ?? 0, color: 'text-indigo-600', bg: 'bg-indigo-50', path: '/patients' },
     { label: 'Active Clinics', value: clinics.length, color: 'text-teal-600', bg: 'bg-teal-50', path: '/clinics' },
   ];
 

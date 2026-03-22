@@ -5,6 +5,31 @@ import Modal from '../components/Modal';
 import { patientService, type Patient, type PatientRequest, type PatientStatus } from '../services/patientService';
 import { clinicService } from '../services/clinicService';
 
+const PAGE_SIZE = 20;
+
+function Pagination({ page, totalPages, totalElements, onPage }: {
+  page: number; totalPages: number; totalElements: number; onPage: (p: number) => void;
+}) {
+  const start = page * PAGE_SIZE + 1;
+  const end = Math.min((page + 1) * PAGE_SIZE, totalElements);
+  return (
+    <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+      <span>{start}–{end} of {totalElements}</span>
+      <div className="flex items-center gap-1">
+        <button disabled={page === 0} onClick={() => onPage(0)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">«</button>
+        <button disabled={page === 0} onClick={() => onPage(page - 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">‹</button>
+        <span className="px-3 py-1">Page {page + 1} of {totalPages}</span>
+        <button disabled={page >= totalPages - 1} onClick={() => onPage(page + 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">›</button>
+        <button disabled={page >= totalPages - 1} onClick={() => onPage(totalPages - 1)}
+          className="px-2 py-1 border border-gray-300 rounded disabled:opacity-40 hover:bg-gray-50">»</button>
+      </div>
+    </div>
+  );
+}
+
 const emptyForm: PatientRequest = {
   firstName: '',
   lastName: '',
@@ -30,15 +55,20 @@ export default function Patients() {
   const qc = useQueryClient();
   const [showAll, setShowAll] = useState(false);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Patient | null>(null);
   const [form, setForm] = useState<PatientRequest>(emptyForm);
   const [error, setError] = useState('');
 
-  const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', !showAll, search],
-    queryFn: () => patientService.getAll(!showAll, search || undefined),
+  const { data: patientPage, isLoading } = useQuery({
+    queryKey: ['patients', !showAll, search, page],
+    queryFn: () => patientService.getAll(!showAll, search || undefined, 'lastName', 'asc', page, PAGE_SIZE),
   });
+
+  const patients = patientPage?.content ?? [];
+  const totalPages = patientPage?.totalPages ?? 0;
+  const totalElements = patientPage?.totalElements ?? 0;
 
   const { data: clinics = [] } = useQuery({
     queryKey: ['clinics', true],
@@ -112,7 +142,7 @@ export default function Patients() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-sm text-gray-500 mt-1">{patients.length} record{patients.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-gray-500 mt-1">{totalElements} record{totalElements !== 1 ? 's' : ''}</p>
         </div>
         <button onClick={openCreate} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
           Add Patient
@@ -124,11 +154,11 @@ export default function Patients() {
           type="text"
           placeholder="Search by name..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => { setSearch(e.target.value); setPage(0); }}
           className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
         <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
-          <input type="checkbox" checked={showAll} onChange={e => setShowAll(e.target.checked)} className="rounded border-gray-300" />
+          <input type="checkbox" checked={showAll} onChange={e => { setShowAll(e.target.checked); setPage(0); }} className="rounded border-gray-300" />
           <span>Show inactive / deceased</span>
         </label>
       </div>
@@ -200,6 +230,7 @@ export default function Patients() {
           </table>
         </div>
       )}
+      <Pagination page={page} totalPages={totalPages} totalElements={totalElements} onPage={setPage} />
 
       {modalOpen && (
         <Modal title={editing ? 'Edit Patient' : 'Add Patient'} onClose={closeModal} size="lg">

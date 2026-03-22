@@ -1,5 +1,6 @@
 package com.lifelinecalllog.controller;
 
+import com.lifelinecalllog.dto.PageResponse;
 import com.lifelinecalllog.dto.PatientRequest;
 import com.lifelinecalllog.dto.PatientResponse;
 import com.lifelinecalllog.service.PatientService;
@@ -21,10 +22,21 @@ public class PatientController {
   }
 
   @GetMapping
-  public List<PatientResponse> getAll(
+  public PageResponse<PatientResponse> getAll(
       @RequestParam(defaultValue = "true") boolean activeOnly,
-      @RequestParam(required = false) String search) {
-    return patientService.findAll(activeOnly, search);
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "lastName") String sortBy,
+      @RequestParam(defaultValue = "asc") String sortDir,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return patientService.findAll(activeOnly, search, sortBy, sortDir, page, size);
+  }
+
+  @GetMapping("/search")
+  public List<PatientResponse> search(
+      @RequestParam(defaultValue = "true") boolean activeOnly,
+      @RequestParam(required = false) String q) {
+    return patientService.findAllForSearch(activeOnly, q);
   }
 
   @GetMapping("/{id}")

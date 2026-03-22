@@ -4,6 +4,26 @@ export type VisitType = string;
 export type Urgency = string;
 export type RequestStatus = string;
 
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface RequestListParams {
+  status?: RequestStatus;
+  clinicId?: string;
+  locationId?: string;
+  doctorId?: string;
+  receivedDate?: string;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
+}
+
 export interface RequestPatient {
   requestPatientId: string;
   patientId: string;
@@ -65,11 +85,18 @@ export interface RequestUpdateRequest {
 }
 
 export const requestService = {
-  async getAll(status?: RequestStatus, clinicId?: string): Promise<Request[]> {
-    const params: Record<string, string> = {};
-    if (status) params.status = status;
-    if (clinicId) params.clinicId = clinicId;
-    const res = await axios.get<Request[]>('/v1/admin/requests', { params });
+  async getAll(p: RequestListParams = {}): Promise<PageResponse<Request>> {
+    const params: Record<string, string | number> = {};
+    if (p.status) params.status = p.status;
+    if (p.clinicId) params.clinicId = p.clinicId;
+    if (p.locationId) params.locationId = p.locationId;
+    if (p.doctorId) params.doctorId = p.doctorId;
+    if (p.receivedDate) params.receivedDate = p.receivedDate;
+    if (p.sortBy) params.sortBy = p.sortBy;
+    if (p.sortDir) params.sortDir = p.sortDir;
+    if (p.page !== undefined) params.page = p.page;
+    if (p.size !== undefined) params.size = p.size;
+    const res = await axios.get<PageResponse<Request>>('/v1/admin/requests', { params });
     return res.data;
   },
   async getById(id: string): Promise<Request> {
@@ -96,8 +123,23 @@ export const requestService = {
     const res = await axios.get('/v1/admin/requests/users');
     return res.data;
   },
+  async exportExcel(p: Pick<RequestListParams, 'status' | 'clinicId' | 'locationId' | 'doctorId' | 'receivedDate'>): Promise<void> {
+    const params: Record<string, string> = {};
+    if (p.status) params.status = p.status;
+    if (p.clinicId) params.clinicId = p.clinicId;
+    if (p.locationId) params.locationId = p.locationId;
+    if (p.doctorId) params.doctorId = p.doctorId;
+    if (p.receivedDate) params.receivedDate = p.receivedDate;
+    const res = await axios.get('/v1/admin/requests/export', { params, responseType: 'blob' });
+    const url = URL.createObjectURL(res.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `requests-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
   async searchPatients(search: string): Promise<{ id: string; firstName: string; lastName: string; medicareNo: string | null }[]> {
-    const res = await axios.get('/v1/admin/patients', { params: { activeOnly: true, search } });
+    const res = await axios.get('/v1/admin/patients/search', { params: { activeOnly: true, q: search } });
     return res.data;
   },
 };
