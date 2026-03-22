@@ -34,6 +34,14 @@ cookie:
 cors:
   allowed-origins: http://localhost:5173
 
+app:
+  base-url: https://lifeline-production-dcf7.up.railway.app
+
+# email sending using resend
+resend:
+  from: onboarding@resend.dev
+  api-key: REPLACE_ME
+
 logging:
   level:
     com.lifelinecalllog: DEBUG
