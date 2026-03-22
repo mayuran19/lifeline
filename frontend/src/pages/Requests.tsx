@@ -360,9 +360,9 @@ export default function Requests() {
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{r.enteredByName || <span className="text-gray-400">—</span>}</td>
                         <td className="px-4 py-4 whitespace-nowrap"><StatusBadge status={r.status} label={configLabel(statusConfigs, r.status)} /></td>
                         <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
-                          <div className="flex items-center justify-end gap-3">
-                            <button onClick={() => openDetail(r)} className="text-blue-600 hover:text-blue-800 font-medium">View</button>
-                            <button onClick={() => openDetailEdit(r)} className="text-gray-500 hover:text-gray-700 font-medium">Edit</button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={() => openDetail(r)} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700">View</button>
+                            <button onClick={() => openDetailEdit(r)} className="px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700">Edit</button>
                           </div>
                         </td>
                       </tr>
